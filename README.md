@@ -6,7 +6,7 @@
 * The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
 - Moreover, this feature can be taken advantage of in case one would like to adjust anything while the contest is on-going or in case a technical problem occured by simply recreating the contest
 
-* User handles' files should be plain text files that contain '\n' separated handles ('%0D' character is accounted for)
+* User handles' files should be plain text files that contain `'\n'` separated handles (`'%0D'` character is accounted for)
 
 ## Usage
 
