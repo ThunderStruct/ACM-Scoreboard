@@ -67,8 +67,8 @@ The scoreboard table wrapper is draggable. This feature was added to help with p
 - This scoreboard is solely created by Mohamed Shahawy (ThunderStruct)
 - Feel free to make a pull request if you find any room for enhancements!
 - *Guide*:
-- index.js contains some defaults and all the setup scripts
-- contest.js contains all the scoreboard/during-contest scripts
+  - index.js contains some defaults and all the setup scripts
+  - contest.js contains all the scoreboard/during-contest scripts
 
 **Happy ACMing!**
 
