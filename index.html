@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ACM Scoreboard</title>
+
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css">
+<link href="index.css" rel="stylesheet" type="text/css">
+<link rel="icon" href="fav_icon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="fav_icon.ico" type="image/x-icon" />
+<script src="jquery-3.1.1.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="moment-with-locales.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="bootstrap-datetimepicker.min.js"></script>
+<script src="index.js" type="text/javascript"></script>
+<script src="contest.js" type="text/javascript"></script>
+</head>
+
+
+<body bgcolor="#2B2B2B" ng-app="ngAnimate">
+
+<div id="headerDiv">
+<br>
+<h1 align="center" style="font-smoothing: antialiased;font-family:'Myriad Pro Bold', 'Myriad Pro', 'Myriad Pro Semibold'; color:#EA6153; word-spacing: 7px; line-height: 7.5px">ACM SCOREBOARD</h1> <h2 align="center" style="color:#4F4F4F"> ( Codeforces ) </h2>
+<br><hr style="margin: 5px">
+</div>
+<br>
+<div align="center" id="bodyContainer" >
+
+<div align="center" id="tableDiv" style="position: relative;">
+<!-- js data imported here -->
+</div>
+<br><br>
+<div align="center" id="setupDiv" style="position: relative;">
+
+<fieldset style="width:650px; background-color:#3C3C3C"><legend align="center" style="font-family: Helvetica Neue, Helvetica, Arial; font-size:18px; color: #CCCCCC">Setup</legend>
+<div align="center" style="width: 650">
+<form name = "setup">
+<table width="500" border="0">
+  <tbody>
+  
+    <tr>
+      <td colspan="2"><input type="text" class="form-control" name="userHandle" size="55" placeholder="User Handle" id="userHandle"/></td>
+ 
+      <td > &nbsp; <button class="setupAddBtn" type="button" title="Add User" id="addUserBtn"> + </button>
+      &nbsp; <button class="setupAddBtn" type="button" title="Add Users File" id="addUserFileBtn" style="font-size: 10px"> Choose a file </button>
+       <div class="hide_file"><input type="file" id="fileInput"/></div> </td>
+      </tr>
+    
+    <tr>
+      <td colspan="4">&nbsp;<div class="form-inline" style="margin-top: -15px"><label class="setupLbl"> Added handles: </label>
+      <label id="addedHandlesNumber" class="setupLbl"> (0) </label></div>
+<ul style="list-style:disc; margin-top: -1.5px" id="handlesUl">
+	<!-- added handles li here-->
+</ul><br></td>
+      </tr> 
+    <tr>
+      <td><input type="text" class="form-control" name="problemNumber" size="23.5" placeholder="Problem Number (eg: 4A)" id="problemNumber" /></td>
+      <td> &nbsp; </td>
+      <td><input type="text" class="form-control" name="problemName" size="28" placeholder="Problem Name (eg: Watermelon)" id="problemName"/></td>
+      <td> &nbsp; <button class="setupAddBtn" type="button" title="Add Problem" id="addProblemBtn"> + </button> </td>
+      </tr>
+    <tr>
+      <td colspan="4">&nbsp; <div class="form-inline" style="margin-top: -15px"> <label class="setupLbl"> Added Problems:</label>
+<label id="addedProblemsNumber" class="setupLbl"> (0) </label> </div>
+ <ul style="list-style:disc; margin-top: -1.5px" id="problemsUl">
+<!-- added problems li here -->
+ </ul><br></td>
+      </tr>
+      <br><br>
+      <tr>
+      	<td width="45%">
+        <input type="text" onkeydown="return false" class="form-control" id="startTime" placeholder="From (GMT time)">
+      	</td>
+        <td width="1%">&nbsp;</td>
+        <td width="45%">
+        <input type="text" onkeydown="return false" class="form-control" id="endTime" placeholder="To (GMT time)">
+        </td>
+      </tr>
+</tbody>
+</table>
+
+<br><br>
+
+</form>
+</div>
+<div>
+  <input class="submitBtn" type="button" name="submit" value="Start Contest" title="Start Contest" align="center" id="submitBtn" />
+  &nbsp;
+  <input class="submitBtn" type="button" name="verify" value="Verify" title="Verify" align="center" id="verifyBtn" />
+</div>
+            
+<br><br>
+</fieldset>
+</div>
+<br><br><br><br>
+</div>
+
+<div align="center">
+<hr style="margin: 5px;">
+<label id="copyrightLbl" class="copyrightLbl" > </label>
+<br><br>
+</div>
+</body>
+</html>
