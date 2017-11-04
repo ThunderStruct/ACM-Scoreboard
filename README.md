@@ -12,7 +12,7 @@
 
 #### Hosted Version
 
-The scoreboard is [hosted](http://thunderstruct.000webhostapp.com), tested, and ready to use!
+The scoreboard is [hosted](http://www.thunderstruct.com/acm-scoreboard/), tested, and ready to use!
 _Note: the web-hosting service used above is free and unreliable (regular sleep time, etc...). Consider cloning the project to your own web-host or running it on a local server_
 
 #### Localhost (recommended)
