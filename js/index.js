@@ -22,6 +22,7 @@
 
 var handles = [];	// array of strings containing the handle names
 var problems = [];	// array of {problemNumber: 4, problemName: Watermelon, problemLetter: A, problemScore: 200} objects
+var detailedUserData = [];	// used for getSubmissionDetails() - array of {handle: ThunderStruct, data: [{Date: 'Wednesday, November 23rd 2017', 'Total Submissions': 20, 'Total Correct Submissions': 13}], problems: [{id: '4A', submissionTime: 1509919933612, submissionTimeFormatted: 'Wednesday, November 23rd 2017', verdict: 'OK', verdictFormatted: 'Passed'}]}
 // Debugging samples
 //var sampleHandles = ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"]
 //var sampleProblems = [{problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}]
@@ -419,6 +420,11 @@ function recursiveVerification(i) {
 			var totalSolvedProblems = {};
 			var solvedTxtAdded;
 			var addedProblems;
+
+			detailedUserData.push({handle: currentHandle})
+			detailedUserData[detailedUserData.length - 1].data = []
+			detailedUserData[detailedUserData.length - 1].problems = []
+
 			for (var j = 0, solvedTxtAdded = false, addedProblems = []; j < resultsArr.length; j++) {
 				var problemData = resultsArr[j]["problem"]
 
@@ -426,6 +432,15 @@ function recursiveVerification(i) {
 					var problem = problems[k];
 					var num = parseInt(problem['problemNumber']);
 					var letter = problem['problemLetter'];
+
+					// detailedUserData problems pushing
+					detailedUserData[detailedUserData.length - 1].problems.push({
+						id: parseInt(resultsArr[j]["problem"]["contestId"]) + resultsArr[j]["problem"]["index"], 
+						submissionTime: resultsArr[j].creationTimeSeconds * 1000, 
+						submissionTimeFormatted: moment((new Date(resultsArr[j].creationTimeSeconds * 1000))).format('dddd, MMMM Do YYYY'), 
+						verdict: resultsArr[j].verdict, 
+						verdictFormatted: resultsArr[j].verdict == 'OK' ? 'Passed' : 'Failed'
+					})
 
 					if (resultsArr[j]["verdict"] == "OK") {
 						var key = parseInt(resultsArr[j]["problem"]["contestId"]) + resultsArr[j]["problem"]["index"]
@@ -499,12 +514,112 @@ function verify() {	// verify button clicked
 	$('#verifyBtn').attr('value', 'Please wait...');
 	$('#verifyBtn').attr('disabled', true);
 
+	detailedUserData.splice(0, detailedUserData.length);	// clear array
 	// verification recursion (delayed to 2 requests per second to prevent server error code 503 - too many requests)
 	recursiveVerification(0);	// starting from handles[0]
 }
 
 
+function getSubmissionDetails() {
+	if (detailedUserData.length == 0) {
+		return "'verify' must be called/clicked before calling this method!"
+	}
+	var startTime = document.getElementById("startTime").value
+	var endTime = document.getElementById("endTime").value;
+	var startMS;
+	var endMS;
+	var timeSet = false;
+	if (!(startTime === "" || endTime === "")) {
+		var dateRef = new Date();
+		startMS = (Number(moment(startTime, 'DD/MM/YYYY H:mm A').format('X')) - (dateRef.getTimezoneOffset() * 60)) * 1000
+		endMS = (Number(moment(endTime, 'DD/MM/YYYY H:mm A').format('X')) - (dateRef.getTimezoneOffset() * 60)) * 1000
+		timeSet = true;
+	}
+
+	console.log('%c====================================================', "color: black; font-weight:bold;")
+	console.log('%cLOGGING DETAILED USER DATA', "color: black; font-weight:bold;")
+	if (timeSet) {
+		console.log('%cTime-range: ', "color: Grey;", moment((new Date(startMS))).format('dddd, MMMM Do YYYY'), ' - ', moment((new Date(endMS))).format('dddd, MMMM Do YYYY'))
+	}
+	else {
+		console.log('%cTime-range: not set | displaying all retrievable data', "color: Grey;")
+		console.log('%c(hint: set a time range using the contest start and end date selectors in the setup screen)', "color: DarkGrey; font-style: italic;")
+	}
+	
+	for (var k = 0; k < detailedUserData.length; k++) {
+		var userData = detailedUserData[k];
+
+		// Filter according to selected time-range
+		var filteredData = userData
+		if (timeSet) {
+			// Time Set
+			for (var i = 0; i < filteredData.problems.length; i++) {
+				var problem = filteredData.problems[i]
+				if (!(problem.submissionTime >= startMS && problem.submissionTime <= endMS)) {
+					// does not fall within the specified time-range
+					var verdictOK = problem.verdict == "OK"
+					filteredData.problems.splice(i, 1)
+					i--;
+				}
+			}	
+		}
+
+
+
+		// Evaluate .data after problems filtering
+		filteredData.data.splice(0, filteredData.data.length)	// remove all
+
+		for (var i = 0; i < filteredData.problems.length; i++) {
+			var problem = filteredData.problems[i]
+			var problemDayDate = moment((new Date(problem.submissionTime))).format('dddd, MMMM Do YYYY')
+			var dataIdx = filteredData.data.findIndex(row => row['Date'] == problemDayDate)
+			if (dataIdx === -1) {
+				// create data entry
+				filteredData.data.push({'Date': problemDayDate, 'Total Submissions': 1, 'Total Correct Submissions': problem.verdict == 'OK' ? 1 : 0})
+				continue
+			}
+			// dataIdx already exists
+			filteredData.data[dataIdx]['Total Submissions']++;
+			if (problem.verdict == 'OK') {
+				filteredData.data[dataIdx]['Total Correct Submissions']++;
+			}
+		}
+
+
+		// Logging
+		console.groupCollapsed("%s's data", userData.handle)
+
+		if (filteredData.problems.length == 0) {
+			// no submissions available
+			console.log(timeSet ? 'This user has no available submissions for the given time frame' : 'This user has no available submissions')
+			console.groupEnd()
+			continue
+		}
+
+		console.table(filteredData.data)
+		console.groupCollapsed("Detailed Submissions' Report")
+		for (var i in filteredData.problems) {
+			var problem = filteredData.problems[i]
+			if (!problem.verdict) {
+				continue;	// no verdict - possibly still in queue
+			}
+			console.groupCollapsed('%c  %c%s: %s', 'background-color: ' + (problem.verdict === 'OK' ? 'green' : 'red') + '; margin-right: 10px', 'background-color: transparent', problem.id, problem.verdictFormatted)
+			console.log('Problem ID: %s', problem.id)
+			console.log('Submission Time (in ms since epoch): ', problem.submissionTime)
+			console.log('Formatted Submission Time: ', problem.submissionTimeFormatted)
+			console.log('Verdict: ', problem.verdict)
+			console.groupEnd()
+		}
+		console.groupEnd();
+
+		console.groupEnd();
+	}
+
+	return "success"
+}
+
+
 // html constant structure --- used to create the table and it's wrapper div along with other material
-var HTML_CONTEST_TABLE = '<div class="wrapper" id="scoreboardWrapper" style="margin-top: -40px"> \n <div align="center" > \n <label id="blindTimeIndicator" class="setupLbl" style="display: none;" title="Score auto-update disabled">(BLIND MODE ON)</label> <br> <label id="countdownTimerLbl" class="setupLbl" title="Time remaining"> 00:00:00 </label> \n </div>  \n <div class="table" id="scoreboardTable" align="center"> \n <div class="row header" id="scoreboardTableHeader"> \n </div> \n </div> \n <div align="center"> \n &nbsp; &nbsp; &nbsp; &nbsp; <a href="javascript:toggleBlindTime()" class="hrefBtn">Blind-Time</a> \n &nbsp; &nbsp; <a href="javascript:manualUpdate()" class="hrefBtn">Update Scores</a> \n &nbsp; &nbsp; <a href="javascript:toggleFullscreen()" class="hrefBtn">Toggle Fullscreen</a> \n </div> \n <div align="center"> \n <label id="lastUpdateLbl" class="setupLbl"> last update: </label> </div> \n </div>'
+var HTML_CONTEST_TABLE = '<div class="wrapper" id="scoreboardWrapper" style="margin-top: -40px"> \n <div align="center" > \n <label id="blindTimeIndicator" class="setupLbl" style="display: none;" title="Score auto-update disabled">(BLIND MODE ON)</label> <br> <label id="countdownTimerLbl" class="setupLbl" title="Time remaining"> 00:00:00 </label> \n </div>  \n <div class="table" id="scoreboardTable" align="center"> \n <div class="row header" id="scoreboardTableHeader"> \n </div> \n </div> \n <div align="center"> \n &nbsp; &nbsp; &nbsp; &nbsp; <a href="javascript:toggleBlindTime()" class="hrefBtn">Blind-Time</a> \n &nbsp; &nbsp; <a href="javascript:manualUpdate()" class="hrefBtn">Update Scores</a> \n &nbsp; &nbsp; <a href="javascript:toggleFullscreen()" class="hrefBtn">Toggle Fullscreen</a> \n </div> \n <div align="center"> \n <label id="lastUpdateLbl" class="setupLbl"> last update: </label> </div> \n </div> <audio controls hidden="hidden" id="finishSoundAudio"> <source src="sounds/finishSound.mp3", type="audio/mpeg"> </audio>'
 
 

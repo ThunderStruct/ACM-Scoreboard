@@ -83,16 +83,15 @@ function prepareTable() {	// creates the table's DOM elements and initializes th
 	countdownValue = endUTCDateEpoch - (currMoment + dstOffset);
 	var countdownLabel = document.getElementById('countdownTimerLbl');
 	countdownLabel.innerHTML =	moment().startOf('day').seconds(countdownValue).format('H:mm:ss');
-	var alarmSound = new Audio('finishSound.mp3');
 	var countDownRef = setInterval(function() {
 		countdownValue--;
 		countdownLabel.innerHTML = moment().startOf('day').seconds(countdownValue).format('H:mm:ss');
 
-		if (countdownValue == 0) {
+		if (Math.abs(countdownValue) == 86400 || countdownValue == 0 || countdownLabel.innerHTML == '0:00:00') {	// 86400 seconds = day count
 			clearInterval(countDownRef);
 			clearInterval(retrievalIntervalRef);
-			alarmSound.play();
-			alert("---CONTEST ENDED---");
+			document.getElementById('finishSoundAudio').play();
+			console.log("%c---CONTEST ENDED---", "color: black; font-weight:bold;");
 		}
 	}, 1000);	// call every second
 }
@@ -116,7 +115,7 @@ function recursiveScoreUpdate(i, s) {	// i = user handle index, s = seconds sinc
 				return;
 			}
 			var resultsArr = data.result;
-			console.log('\nUser index: ' + i + ' - handles[index]: ' + handles[i]);
+			console.groupCollapsed('User index: ' + i + ' - handles[index]: ' + handles[i]);
 
 			for (var k = 0; k < problems.length; k++) {
 				var problem = problems[k];
@@ -212,6 +211,7 @@ function recursiveScoreUpdate(i, s) {	// i = user handle index, s = seconds sinc
 
 			}	
 
+			console.groupEnd();
 			if (i + 1 < handles.length) {
 				setTimeout(recursiveScoreUpdate(i + 1, s), 100);	// 100ms / 10 requests per second max 
 				//(could decrease the delay further if you factor in the download time)
@@ -224,7 +224,9 @@ function recursiveScoreUpdate(i, s) {	// i = user handle index, s = seconds sinc
 				timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000 );	// update every second
 				dataIsBeingRetrieved = false
 				updateDOMElementsWithScores();
+				console.groupEnd();
 			}
+
 		},
 		error: (jqXHR, status, error) =>  {
 			dataIsBeingRetrieved = false;
@@ -269,7 +271,7 @@ function retrieveJSONData(isAuto) {	// isAuto can be used to differentiate betwe
 	scores = [];	// clear array
 	var currDate = new Date() / 1000;
 	retrievalCount++;
-	console.log("\nRetrieval Number " + parseInt(retrievalCount) + "\n");
+	console.groupCollapsed("Retrieval Number " + parseInt(retrievalCount) + "\n");
 	recursiveScoreUpdate(0, currDate - lastUpdateTime);
 
 }
@@ -430,7 +432,18 @@ function toggleBlindTime() {
 }
 
 function getLastSubmission() {
-	return lastSubmissionData
+	if (!lastSubmissionData) {
+		return 'no submissions currently available'
+	}
+
+	console.groupCollapsed('Last Accepted Submission Details')
+	console.log('Handle:', lastSubmissionData.handle)
+	console.log('Problem ID:', parseInt(lastSubmissionData.problemNum) + lastSubmissionData.problemLetter)
+	console.log('Submission Time (in ms since epoch):', lastSubmissionData.submissionTime)
+	console.log('Submission Time Formatted:', lastSubmissionData.submissionTimeFormatted)
+	console.log('Verdict:', 'OK')
+	console.groupEnd()
+	return 'success'
 }
 
 function draggableDiv(e){
