@@ -68,6 +68,8 @@ The verify button in the setup screen cross-references the given handle names' s
 
 Blind-Time mode can be activated using the respective button beneath the scoreboard. If blind mode is on, the score will not automatically update.
 
+The contest table's rows are dynamically sorted descendingly (top scorer at the top) after each update
+
 The duration displayed above the scoreboard has a max value of 24 hours. It can be easily adjusted for more in contest.js -> prepareTable()
 
 The scoreboard updates the data automatically once every 10 minutes from the last update.
@@ -97,6 +99,12 @@ The scoreboard table wrapper is draggable. This feature was added to help with p
 3. Each wrong submission is penalized by 10 minutes
 4. Problem evaluation time gives up to 20 minutes bonus (for a 15ms submission)
 * Wrong submissions on unsolved problems do not affect the total scores.
+
+Title attributes are assigned to the contest table's cells for convenience
+
+* Hovering over any problem in the header row of the contest table will display its score points
+* Hovering over any submission cell will display the last submission's date/time
+* Hovering over any handle will display the user's current total score
 
 *(note: the scoring equation can be customized in contest.js -> recursiveScoreUpdate())*
 
