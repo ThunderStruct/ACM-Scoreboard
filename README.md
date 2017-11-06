@@ -6,24 +6,61 @@
 * The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
 - Moreover, this feature can be taken advantage of in case one would like to adjust anything while the contest is on-going or in case a technical problem occured by simply recreating the contest
 
-* User handles' files should be plain text files that contain `'\n'` separated handles (`'%0D'` character is accounted for)
+* User handles' files should be plain text files that contain `'\n'` separated handles (`'%0D'` carriage return character is accounted for)
 
 ## Usage
 
-#### Hosted Version
+#### Hosted Version (recommended)
 
-The scoreboard is [hosted](http://www.thunderstruct.com/acm-scoreboard/), tested, and ready to use!
-_Note: the web-hosting service used above is free and unreliable (regular sleep time, etc...). Consider cloning the project to your own web-host or running it on a local server_
+The scoreboard is already [hosted](http://www.thunderstruct.com/acm-scoreboard/), tested, and ready to use!
 
-#### Localhost (recommended)
+_Note: the server sleeps for 1 hour daily at 1AM GMT. If that's an issue, consider the next option_
 
-To ensure smooth and reliable usage, it is recommended to clone the project and run it on a local (or remote) HTTP server.
+#### Localhost
+
+To ensure absolute control over the running environment, clone the project and run it on a local (or remote) HTTP server.
+
 _Note: Python is required for the following steps_
 
 1. `cd` to a desired directory to contain all the project files
 2. `git clone https://github.com/ThunderStruct/ACM-Scoreboard.git`
-3. `python -m SimpleHTTPServer` for Python 2.x. Alternatively, `python -m http.server` for Python 3.x
+3. `python -m SimpleHTTPServer` for Python 2.x. Alternatively, use `python -m http.server` for Python 3.x
 4. The scoreboard is now accessible through port 8000 (`localhost:8000`)
+
+_Warning: the server, whether local or remote, *must* be using HTTP protocol, not HTTPS or other, since the Codeforces API is hosted on an HTTP server_
+
+## Console Commands / Methods
+
+Some useful functions are available and callable through the browser's developer console. All console methods' results and output are also neatly displayed in the developer console.
+
+#### getSubmissionDetails()
+
+This method displays more detailed information corresponding to each entered Codeforces handle.
+
+  - Parameters: none
+  - Return Type: string - either "success" or error details
+  - Prerequisites: 1 or more handles AND `verify()` must be called either through the console or by clicking the 'Verify' button
+
+While `verify()` must be called for this function to work, the entered problem(s) do not affect its result.
+
+The results of the method *per handle* include:
+  - Handle name
+  - A table of total submissions count and correct submissions count grouped by day
+  - A list of grouped details of each submission
+  
+![getSubmissionDetails() example](https://i.imgur.com/nGgFjS5.png)
+
+#### getLastSubmission()
+
+This method displays the last *accepted* submission's data as of the time it's called
+
+  - Parameters: none
+  - Return Type: string - either "success" or error details
+  - Prerequisites: the contest must be started AND at least 1 accepted submission must be shown on the contest table
+
+The results of the method include:
+  - Handle name
+  - The last submission's problem details
 
 ## Instructions
 
@@ -73,5 +110,5 @@ The scoreboard table wrapper is draggable. This feature was added to help with p
 **Happy ACMing!**
 
 ## License
-MIT
+[MIT](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/LICENSE)
 
