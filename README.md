@@ -40,6 +40,7 @@ This method displays more detailed information corresponding to each entered Cod
   - Parameters: none
   - Return Type: string - either "success" or error details
   - Prerequisites: 1 or more handles AND `verify()` must be called either through the console or by clicking the 'Verify' button
+  - Options: a time-range filter for the submissions can be specified using the start and end date selectors in the setup screen. If the selectors are empty, no filter will be used and a detailed report of _ALL_ users' submissions will be displayed
 
 While `verify()` must be called for this function to work, the entered problem(s) do not affect its result.
 
