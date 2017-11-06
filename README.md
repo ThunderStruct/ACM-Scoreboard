@@ -69,7 +69,7 @@ The verify button in the setup screen cross-references the given handle names' s
 
 Blind-Time mode can be activated using the respective button beneath the scoreboard. If blind mode is on, the score will not automatically update.
 
-The contest table's rows are dynamically sorted descendingly (top scorer at the top) after each update
+The contest table's rows are dynamically sorted descendingly (top-scorer at the top) after each update
 
 The duration displayed above the scoreboard has a max value of 24 hours. It can be easily adjusted for more in contest.js -> prepareTable()
 
