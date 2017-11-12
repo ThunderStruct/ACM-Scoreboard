@@ -55,9 +55,18 @@ $(window).ready(function() {
     });
 
     // Panel button listeners
+    $('#documentationBtn').on('click', function(e) {
+        var url = 'https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/README.md#acm-scoreboard'
+        var success = window.open(url, '_blank');
+        if (!success) {
+            showToast('the request to open a new tab was blocked by your browser. check the console for details', 'error', 'short');
+            console.log('Add this domain to your Ad-Block\'s whitelist or visit the documentation manually (' + url +')');
+        }
+    });
+
     $('#logDetailedReportBtn').on('click', function(e) {
         if ($(this).hasClass('disabled')) {
-            showToast('at least 1 user handle is required', 'neutral', 'long');
+            showToast('loggin a detailed report requires at least 1 user handle', 'neutral', 'long');
             return;
         }
         if (userDataRetrievalInProcess) {
@@ -69,7 +78,7 @@ $(window).ready(function() {
 
     $('#logLastSubmissionBtn').on('click', function(e) {
         if ($(this).hasClass('disabled')) {
-            showToast('at least 1 problem submission is required', 'neutral', 'long');
+            showToast('logging the last submission data requires at least 1 submission', 'neutral', 'long');
             return;
         }
         getLastSubmission();
@@ -77,7 +86,7 @@ $(window).ready(function() {
 
     $('#copyContestBtn').on('click', function(e) {
         if ($(this).hasClass('disabled')) {
-            showToast('all contest data must be entered', 'neutral', 'long');
+            showToast('copying contest data requires a complete contest setup', 'neutral', 'long');
             return;
         }
 
@@ -97,11 +106,11 @@ $(window).ready(function() {
             }
             else {
                 showToast('could not copy setup data to clipboard! check the console to copy the encoded string manually', 'error', 'long');
-                console.log(compressedSetup);
+                console.log('setup encoded string: ' + compressedSetup);
             }
         } catch (err) {
             showToast('could not copy setup data to clipboard! check the console to copy the encoded string manually', 'error', 'long');
-            console.log(compressedSetup);
+            console.log('setup encoded string: ' + compressedSetup);
         }
 
         document.body.removeChild(tempArea);
@@ -109,7 +118,7 @@ $(window).ready(function() {
 
     $('#loadContestBtn').on('click', function(e) {
         if ($(this).hasClass('disabled')) {
-            showToast('cannot load contest data while it\'s running', 'neutral', 'long');
+            showToast('cannot load contest data while a contest is running', 'neutral', 'long');
             return;
         }
     });
@@ -127,7 +136,7 @@ $(window).ready(function() {
 
     $('#cancelSubmissionBtn').on('click', function(e) {
         if ($(this).hasClass('disabled')) {
-            showToast('at least 1 problem submission is required', 'neutral', 'long');
+            showToast('cancelling submissions requires at least 1 problem submission', 'neutral', 'long');
             return;
         }
     }); 
