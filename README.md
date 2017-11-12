@@ -111,11 +111,11 @@ The verify button in the setup screen cross-references the given handle names' s
 
 The contest table's rows are dynamically sorted descendingly (top-scorer at the top) after each update
 
-The duration displayed above the scoreboard has a max value of 24 hours. It can be easily adjusted for more in contest.js -> prepareTable()
+The duration displayed above the scoreboard has a max value of 24 hours. It can be easily adjusted for more in contest.js (`prepareTable()`)
 
 The scoreboard updates the data automatically once every 3 minutes from the last update
 
-The start and end time entered in the setup screen MUST be in UTC (GMT), otherwise the behavior of the scoring equation is unknown
+The start and end time entered in the setup screen _MUST_ be in UTC (GMT), otherwise the behavior of the scoring equation is unknown
 
 The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
 
