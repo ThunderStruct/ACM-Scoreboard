@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Changed
   - Some of the toasts' wording for better clarity
+  
+### Fixed
+  - A tiny bug that caused detailed report logging to be interrupted if one of the handles are invalid or a server error occured
 
 ## 1.0.0 - 2017-11-12
 ### Added

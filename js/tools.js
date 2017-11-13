@@ -62,6 +62,8 @@ $(window).ready(function() {
             showToast('the request to open a new tab was blocked by your browser. check the console for details', 'error', 'short');
             console.log('Add this domain to your Ad-Block\'s whitelist or visit the documentation manually (' + url +')');
         }
+
+        $(this).blur();
     });
 
     $('#logDetailedReportBtn').on('click', function(e) {
@@ -74,6 +76,8 @@ $(window).ready(function() {
             return;
         }
         getSubmissionDetails();
+
+        $(this).blur();
     });
 
     $('#logLastSubmissionBtn').on('click', function(e) {
@@ -82,6 +86,8 @@ $(window).ready(function() {
             return;
         }
         getLastSubmission();
+
+        $(this).blur();
     });
 
     $('#copyContestBtn').on('click', function(e) {
@@ -114,6 +120,8 @@ $(window).ready(function() {
         }
 
         document.body.removeChild(tempArea);
+
+        $(this).blur();
     });
 
     $('#loadContestBtn').on('click', function(e) {
@@ -186,6 +194,8 @@ $(window).ready(function() {
         if (!$(this).parent().hasClass('activated')) {
             $(this).parent().addClass('activated');
         }
+
+        $(this).blur();
     });
 
 });
@@ -263,7 +273,7 @@ function recursiveUserDetailsRetrieval(i, completionBlock) {
 
             if (callbackStatus != 'OK') {
 
-                detailedUserData.push({handle: currentHandle, errorMsg: 'An error has occured while retrieving this user\'s data'});   
+                detailedUserData.push({handle: currentHandle, errorMsg: 'An error occured while retrieving this user\'s data'});   
                 if (data.comment.match(/handle: User with handle/g).length > 0) {
                     showToast('user "' + handles[i] + '" not found', 'error', 'short');
                 }
@@ -366,6 +376,15 @@ function getSubmissionDetails() {
 
             // Filter according to selected time-range
             var filteredData = userData;
+
+
+            if (userData.errorMsg != undefined) {
+                console.groupCollapsed('%s\'s data', userData.handle);
+                console.log('%c ' + userData.errorMsg, 'color: #c0392b;');
+                console.groupEnd();
+                continue;
+            }
+
             if (timeSet) {
                 // Time Set
                 for (var i = 0; i < filteredData.problems.length; i += 1) {
@@ -401,12 +420,6 @@ function getSubmissionDetails() {
 
             // Logging
             console.groupCollapsed('%s\'s data', userData.handle);
-
-            if (userData.errorMsg != undefined) {
-                console.log('%c ' + userData.errorMsg, 'color: #c0392b;');
-                console.groupEnd();
-                continue;
-            }
 
             if (filteredData.problems.length == 0) {
                 // no submissions available

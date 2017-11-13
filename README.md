@@ -44,6 +44,8 @@ No Requirements
 
 This method displays more detailed information corresponding to each entered Codeforces handle in the developer console.
 
+*note: this method logs potentially large amounts of data, and developer consoles on many browsers might hide part of the report if the console is not open. To avoid that issue, make sure the developer console is _open_ while using this tool*
+
 Requirements:
   - At least 1 entered user handle
   - Setup start time and end time (optional - filters out the the details that do not fall in the given time range)
