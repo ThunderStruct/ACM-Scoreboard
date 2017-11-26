@@ -164,8 +164,10 @@ Title attributes are assigned to the contest table's cells for convenience
 - Hubspot's [PACE](github.hubspot.com/pace/docs/welcome/) loading screen is used
 - Matthew Crumley's SO [post](https://stackoverflow.com/a/294421/3551916) on LZW string compression
 - *Guide*:
-  - index.js contains some defaults and all the setup scripts
+  - index.js contains some defaults and general initializers
   - contest.js contains all the scoreboard/during-contest scripts
+  - tools.js contains the floating tools scripts
+  - setup.js contains all the setup screen scripts
 
 **Happy ACMing!**
 
