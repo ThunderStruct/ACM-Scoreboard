@@ -78,7 +78,7 @@ The results of the method include:
   - At least 1 entered problem data
   - Contest start and end times
   
-  *~~note: the generated string does _NOT_ contain cancelled submissions' data. All cancelled submissions must be re-entered!~~ the generated string contains all cancelled submissions' data as of version 1.1.0*
+  *note: ~~the generated string does _NOT_ contain cancelled submissions' data. All cancelled submissions must be re-entered!~~ the generated string contains all cancelled submissions' data as of version 1.1.0*
   
 
 #### Load Contest
