@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.1.1 - 2017-11-28
+### Added
+  - Alert prompt on page-unload during a contest to prevent accidental page-refresh
+
 ## 1.1.0 - 2017-11-28
 ### Added
   - A legend over the scoreboard to describe the color-coding scheme

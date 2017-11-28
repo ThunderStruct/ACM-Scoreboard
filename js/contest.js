@@ -154,6 +154,9 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
         countdownLabel.innerHTML = moment(countdownValue.asMilliseconds()).utc().format('H:mm:ss');
 
         if (countdownValue <= 0) {
+            // CONTEST ENDED
+            window.onbeforeunload = null;
+            
             countdownLabel.innerHTML = moment(0).utc().format('H:mm:ss');
             contestEnded = true;
             clearInterval(countDownRef);

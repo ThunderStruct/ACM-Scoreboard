@@ -308,6 +308,12 @@ $(document).ready(function() {
             // disable load contest
             if (!$('#loadContestBtn').hasClass('disabled'))
                 $('#loadContestBtn').addClass('disabled');
+
+            // On page unload listener
+            window.onbeforeunload = function() {
+                return 'The current contest will be lost...';
+            };
+
             // start JSON callbacks schedule
             retrievalIntervalRef = setInterval(function() {
                 retrieveJSONData(true);

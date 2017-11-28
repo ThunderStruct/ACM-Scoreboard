@@ -118,6 +118,8 @@ $(window).ready(function() {
     toastr.options.closeDuration = 300;
 });
 
+
+
 function showToast(msg, type, duration) {
     var timeOutDuration = duration == 'short' ? 3000 : 5000;    // short: 3 seconds  -- long: 5 seconds
     
