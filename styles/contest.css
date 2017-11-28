@@ -13,6 +13,87 @@
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 	display: table;
 }
+
+.contest-info-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+#countdownTimerLbl {
+	margin-top: 7px;
+	padding: 0;
+	position: absolute;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, 0);
+}
+
+.legend-table {
+	margin-bottom: 7px;
+	padding: 5px;
+	display: table;
+	float: right;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+	background: #3C3C3C;
+	opacity: 0.3;
+	cursor: pointer;
+	height: 35px;
+	width: 425px;
+}
+
+.legend-table:hover, .legend-table.selected {
+	opacity: 1;
+	box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+}
+
+.legend-table:active {
+	box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
+	transform: scale(0.995);
+}
+
+.legend-table .legend-cell {
+	/* legend cell wrapper */
+	padding: 4px 2px;
+	font-size: 8px;
+	line-height: 12px;
+	font-weight: 700;
+	margin-right: 2px;
+	margin-left: 4px;
+	margin-top: 2px;
+	display: table-cell;
+}
+
+.legend-status {
+	/* colored square */
+	width: 12px;
+	height: 12px;
+	display: table-cell;
+	margin-right: 3px;
+	box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+}
+
+.legend-status.first-answer {
+	background: #007235;
+}
+
+.legend-status.right-answer {
+	background: #27AE60;
+}
+
+.legend-status.wrong-answer {
+	background: #c0392b;
+}
+
+.legend-table .legend-cell .legend-text {
+	/* colored square */
+	font-family: brandon-grotesque, sans-serif;
+	font-size: 10px;
+	color: #ecf0f1;
+	margin-left: 5px;
+	padding-left: 5px;
+	display: table-cell;
+}
+
 @media screen and (max-width: 580px) {
 	.contest-table {
 		display: block;
@@ -65,21 +146,21 @@
 	}
 }
 
-.contest-cell.wrongAnswer {
+.contest-cell.wrong-answer {
 	background: #c0392b;
 	color: #CCCCCC;
 }
 
-.contest-cell.rightAnswer {
+.contest-cell.right-answer {
 	background: #27AE60;
 }
 
-.contest-cell.firstAnswer {
+.contest-cell.first-answer {
 	background: #007235;
 	color: #CCCCCC;
 }
 
-.contest-cell.lastSubmission {
+.contest-cell.last-submission {
 	background: #407FB9;
 	color: #CCCCCC;
 }

@@ -230,6 +230,9 @@ function loadContestSetup(compressedString) {
     $('#startTime').val(jsonObj.time.startTime).change();
     $('#endTime').val(jsonObj.time.endTime).change();
 
+    // cancelled submissions
+    cancelledSubmissionIds = jsonObj.cancelledSubmissions
+
     showToast('contest data successfully loaded!', 'success', 'short');
 }
 
@@ -242,6 +245,7 @@ function compressSetupData() {
     jsonObj.handles = JSON.parse(handlesJSONStr);
     jsonObj.problems = JSON.parse(problemsJSONStr);
     jsonObj.time = {startTime: $('#startTime')[0].value, endTime: $('#endTime')[0].value};
+    jsonObj.cancelledSubmissions = cancelledSubmissionIds
     
     var uncompressedString = JSON.stringify(jsonObj);
 
@@ -509,6 +513,7 @@ function cancelSubmission(id) {
     if (cancelledSubmissionIds.indexOf(parsedId) === -1) {
         cancelledSubmissionIds.push(parsedId);
         showToast('submission id successfully cancelled! update the scores to see changes', 'success', 'long');
+        return;
     }
 
     showToast('submission id already cancelled', 'neutral', 'short');

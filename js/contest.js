@@ -71,6 +71,27 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
         }
     }
 
+    // init legend table
+    legendTable = $('.legend-table');
+    legendTable.on('click', function(e){
+        $(this).toggleClass('selected');
+    });
+    legendTable.append(
+            $('<div/>', {'class': 'legend-cell'})
+                .append($('<div/>', {'class': 'legend-status first-answer'}))
+                .append($('<div/>', {'class': 'legend-text'}).text('First to solve problem'))
+                    );
+    legendTable.append(
+            $('<div/>', {'class': 'legend-cell'})
+                .append($('<div/>', {'class': 'legend-status right-answer'}))
+                .append( $('<div/>', {'class': 'legend-text'}).text('Solved problem'))
+                    );
+    legendTable.append(
+            $('<div/>', {'class': 'legend-cell'})
+                .append($('<div/>', {'class': 'legend-status wrong-answer'}))
+                .append($('<div/>', {'class': 'legend-text'}).text('Attempted problem'))
+                    );
+
     // init original indices
     for (i in handles) {
         handlesOriginalIndices[handles[i]] = i;
@@ -401,7 +422,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
     /* highlight last submission
     if (lastSubmission.time != 0) {    // if a submission exists
         var cell = $('#scoreboardCell' + handlesOriginalIndices[handles[lastSubmission.handleIndex]] + ',' + parseInt(lastSubmission.problemIndex + 1))[0];
-        cell.className = 'contest-cell lastSubmission';
+        cell.className = 'contest-cell last-submission';
     } */
 
     console.log('Total Scores: ' + totalScores);
@@ -423,7 +444,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
         var cell = $('#scoreboardCell' + (handlesOriginalIndices[handles[scores[i]['handleIndex']]] + ',' + parseInt(scores[i]['problemIndex'] + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
         if (!(scores[i].isSolved)) {
             // wrong answer
-            cell.className='contest-cell wrongAnswer';
+            cell.className='contest-cell wrong-answer';
         }
         else {
             // right answer or first answer color
@@ -438,10 +459,10 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
             }
 
             if (isFirstAnswer) {
-                cell.className='contest-cell firstAnswer';
+                cell.className='contest-cell first-answer';
             }
             else {
-                cell.className='contest-cell rightAnswer';
+                cell.className='contest-cell right-answer';
             }
         }
     }

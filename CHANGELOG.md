@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 - 2017-11-28
+### Added
+  - A legend over the scoreboard to describe the color-coding scheme
+  
+### Changed
+  - The copy-contest tool now copies cancelled submissions
+  
+### Fixed
+  - A bug that resulted in an erroneous warning when cancelling a submission
+
 ## 1.0.1 - 2017-11-13
 ### Added
   - An extra button to the tools floating menu to refer to the website's documentation
