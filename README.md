@@ -78,7 +78,7 @@ The results of the method include:
   - At least 1 entered problem data
   - Contest start and end times
   
-  *~~note: the generated string does _NOT_ contain cancelled submissions' data. All cancelled submissions must be re-entered!~~ the generated string contains all cancelled submissions' data as of version 1.1.0*
+  *note: ~~the generated string does _NOT_ contain cancelled submissions' data. All cancelled submissions must be re-entered!~~ the generated string contains all cancelled submissions' data as of version 1.1.0*
   
 
 #### Load Contest
@@ -184,10 +184,10 @@ Title attributes are assigned to the contest table's cells for convenience
   
   Feel free to make a pull request if you find any room for enhancements or fixing bugs. The following brief file descriptions should be helpful!
   
-    - index.js: some defaults and general initializers
-    - contest.js: all the scoreboard/during-contest scripts
-    - tools.js: the floating tools scripts
-    - setup.js: all the setup screen scripts
+  - index.js: some defaults and general initializers
+  - contest.js: all the scoreboard/during-contest scripts
+  - tools.js: the floating tools scripts
+  - setup.js: all the setup screen scripts
 
 ## License
 [MIT](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/LICENSE)
