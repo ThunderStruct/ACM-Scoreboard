@@ -504,15 +504,30 @@ function getLastSubmission() {
 }
 
 function cancelSubmission(id) {
+    if (isNaN(id)) {    // invalid id
+        showToast('invalid submission id', 'error', 'short');
+        return;
+    }
     var parsedId;
-    if (typeof id === 'string')
+    if (typeof id === 'string') {
         parsedId = parseInt(id);
+    }
     else 
         parsedId = id;
 
-    if (cancelledSubmissionIds.indexOf(parsedId) === -1) {
+    if (cancelledSubmissionIds.indexOf(parsedId) === -1 && parsedId > 0) {
         cancelledSubmissionIds.push(parsedId);
         showToast('submission id successfully cancelled! update the scores to see changes', 'success', 'long');
+        return;
+    }
+    else if (cancelledSubmissionIds.indexOf(parsedId * -1) === -1 && parsedId < 0) {
+        // not available to cancel
+        showToast('submission id is not cancelled! to cancel it, remove the negative sign', 'error', 'long');
+        return;
+    }
+    else if (cancelledSubmissionIds.indexOf(parsedId * -1) != -1 && parsedId < 0) {
+        cancelledSubmissionIds.splice(cancelledSubmissionIds.indexOf(parsedId), 1);
+        showToast('submission id successfully removed from the cancellation list! update the scores to see changes', 'success', 'long');
         return;
     }
 

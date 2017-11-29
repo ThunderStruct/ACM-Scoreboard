@@ -103,7 +103,12 @@ function addUser(user) {    // add user to the handles array and add the DOM ele
     entry.id = 'handleLi' + handle;
     var span = document.createElement('SPAN');
     span.id = 'handleLi' + handle + 'Span';
+    span.className = 'added-li-text';
     span.appendChild(document.createTextNode(handle))
+    var statusSpan = document.createElement('SPAN');
+    statusSpan.className = 'added-li-status-text';
+    statusSpan.id = 'handleLi' + handle + 'StatusSpan';
+    span.appendChild(statusSpan);
     entry.appendChild(span);
     // init panel
     var panel = document.createElement('DIV');
@@ -190,7 +195,10 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     var entry = document.createElement('LI');
     entry.className = 'added-li';
     entry.id = 'problemLi' + problemNum.toString() + problemLetter;
-    entry.appendChild(document.createTextNode(problemNum.toString() + problemLetter + (problemName == '' ? '' : ' - ' + problemName)));
+    var textSpan = document.createElement('SPAN');
+    textSpan.className = 'added-li-text';
+    textSpan.appendChild(document.createTextNode(problemNum.toString() + problemLetter + (problemName == '' ? '' : ' - ' + problemName)))
+    entry.appendChild(textSpan);
     // init panel
     var panel = document.createElement('DIV');
     panel.className ='li-panel';
@@ -207,6 +215,7 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     // possible scores dropdown init
     var selector = document.createElement('SELECT');
     selector.title = 'Problem score';
+    selector.className = 'problem-score-selector';
     for (var score in POSSIBLE_SCORES) {
         selector.options[selector.options.length] = new Option(POSSIBLE_SCORES[score]);
     }
@@ -309,7 +318,7 @@ $(document).ready(function() {
             if (!$('#loadContestBtn').hasClass('disabled'))
                 $('#loadContestBtn').addClass('disabled');
 
-            // On page unload listener
+            // on page unload listener
             window.onbeforeunload = function() {
                 return 'The current contest will be lost...';
             };
@@ -320,12 +329,13 @@ $(document).ready(function() {
             }, 1200 * 1000); // every 1200 seconds / 10 minutes (in ms)
 
         });
+        
     });
 })
 
 function recursiveVerification(i) {
-    var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'Span');
-    handleElement.text(handles[i] + ' | processing...');
+    var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
+    handleElement.text(' | processing...');
 
     $.ajax({
         url: 'http://codeforces.com/api/user.status',
@@ -340,7 +350,7 @@ function recursiveVerification(i) {
         jsonpCallback: 'callback',
         success: function(data) {
             // Callback
-            var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'Span');
+            var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
             var currentHandle = handles[i];
             var processedHandle = handles[i].replace(/\./g, '\\\\.');   // to account for dots in HTML id
 
@@ -349,7 +359,7 @@ function recursiveVerification(i) {
             if (callbackStatus != 'OK') {
 
                 if (data.comment.match(/handle: User with handle/g).length > 0) {
-                    handleElement.text(currentHandle + ' | user not found');
+                    handleElement.text(' | user not found');
                 }
                 else {
                     showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
@@ -394,7 +404,7 @@ function recursiveVerification(i) {
                         }
 
                         if (!solvedTxtAdded) {
-                            handleElement.text(currentHandle + ' | solved: ' + num + letter);
+                            handleElement.text(' | solved: ' + num + letter);
                         }
                         else {
                             handleElement.text(handleElement.text() + ', ' + num + letter);
@@ -407,7 +417,7 @@ function recursiveVerification(i) {
 
             if (!solvedTxtAdded) {
                 // hasn't solved any of the listed problems
-                handleElement.text(currentHandle+ ' | pass');
+                handleElement.text(' | pass');
             }
 
             // Total solved
@@ -445,8 +455,8 @@ function verify() { // verify button clicked
     }
 
     for (var i = 0; i < handles.length; i += 1) {
-        var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'Span');
-        handleElement.text(handles[i]);
+        var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
+        handleElement.text('');
     }
 
     // success

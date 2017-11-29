@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.2.0 - 2017-11-29
+### Added
+  - Removing a submission ID from the cancelled submissions list
+  
+### Changed
+  - The added handles and problems lists' design
+  - Title redesign
+
+### Fixed
+  - A bug caused by not accounting for invalid submission IDs when cancelling a submission
+
 ## 1.1.1 - 2017-11-28
 ### Added
   - Alert prompt on page-unload during a contest to prevent accidental page-refresh

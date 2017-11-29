@@ -93,9 +93,11 @@ Requirements:
 
 This tool takes a codeforces submission ID (can be found using Log Detailed Report or, alternatively, `console.log(scores)` in the developer console) to cancel it incase of an illegal submission or similar
 
+As of version 1.2.0, a submission ID can be removed from the cancellation list simply by adding a negative `-` sign before the ID
+
 Scores _must_ be updated afterwards to see effect
 
-*note: currently, the only way to _undo_ this action is to setup the contest again*
+~~*note: currently, the only way to _undo_ this action is to setup the contest again*~~
 
 Requirements:
 - At least 1 problem submission

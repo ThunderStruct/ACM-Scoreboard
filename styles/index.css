@@ -35,6 +35,16 @@ body {
 	display: block;
 }
 
+.title-second-part {
+	color: #bdc3c7;
+}
+
+.subtitle {
+	display: inline-block;
+	text-align: center;
+	margin-top: 7px;
+}
+
 /* Setup Style */
 
 input[type="text"] {
@@ -108,15 +118,51 @@ input[type="text"]:focus {
 .added-li {
 	font-family: brandon-grotesque, sans-serif; 
 	font-size:15px;
-	color: #e74c3c;
+	color: #7f8c8d;
 }
 
 .added-li:hover .li-panel {
 	display: inline-block;
 }
 
+.added-li:hover .added-li-text {
+	color: #66afe9;
+}
+
+.added-li:hover .added-li-status-text {
+	color: #bdc3c7;
+}
+
+.added-li-text {
+	font-family: brandon-grotesque, sans-serif; 
+	font-size:15px;
+	color: #2980b9;
+}
+
+.added-li-status-text {
+	font-family: brandon-grotesque, sans-serif; 
+	font-size:15px;
+	color: #95a5a6;
+}
+
 .li-panel {
 	display: none;
+}
+
+.problem-score-selector {
+	background-color: #ecf0f1;
+	color: #2980b9;
+	cursor: pointer;
+	border: 0;
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+}
+
+.problem-score-selector:focus {
+	outline: 0;
+}
+
+.problem-score-selector:hover {
+	box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
 }
 
 .delete-btn {
@@ -130,11 +176,11 @@ input[type="text"]:focus {
 }
 
 .delete-btn:hover {
-	color: #c0392b;
+	color: #e74c3c;
 }
 
 .delete-btn:active {
-	color: #e74c3c;
+	color: #c0392b;
 }
 
 .copyright-lbl {
