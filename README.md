@@ -185,7 +185,7 @@ Title attributes are assigned to the contest table's cells for convenience
   
   #### Contribution Guide
   
-  Feel free to make a pull request if you find any room for enhancements or fixing bugs. The following brief file descriptions should be helpful!
+  Feel free to make a pull request if you find any room for enhancements or fixing bugs. The following brief file descriptions should be helpful! Please make sure to read the repo's [CONTRIBUTING](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/CONTRIBUTING.md) guide before making any changes
   
   - index.js: some defaults and general initializers
   - contest.js: all the scoreboard/during-contest scripts
