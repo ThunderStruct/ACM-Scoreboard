@@ -192,5 +192,5 @@ Title attributes are assigned to the contest table's cells for convenience
   - setup.js: all the setup screen scripts
 
 ## License
-[MIT](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/LICENSE)
+![CC](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
 
