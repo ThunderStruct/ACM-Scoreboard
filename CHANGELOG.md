@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.2.1 - 2017-12-2
+### Fixed
+  - A bug that prevented loading user handles from a file
+
 ## 1.2.0 - 2017-11-29
 ### Added
   - Removing a submission ID from the cancelled submissions list

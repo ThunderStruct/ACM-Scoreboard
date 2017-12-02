@@ -102,7 +102,7 @@ $(window).ready(function() {
     $('#copyrightLbl').text(copyrightText);
 
     $('#fileInput').change(function (){
-        var file = $('#fileInput').files[0];
+        var file = $('#fileInput')[0].files[0];
         readFile(file);
     });
 
