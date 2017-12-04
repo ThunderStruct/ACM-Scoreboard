@@ -1,7 +1,7 @@
 # ACM Scoreboard
 >developed for codeforces.com
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.2.1-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/) 
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.2.2-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
 ## Notes
 
 * The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
