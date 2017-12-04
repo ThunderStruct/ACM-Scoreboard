@@ -44,9 +44,7 @@
 	transition: transform 100ms ease;
 }
 .action-button:hover span,
-.expanded .action-button span,
-.fab-wrapper .panel-button:hover i,
-.fab-wrapper .panel-element.selected .panel-button i {
+.expanded .action-button span {
 	transform: scale(1.05);
 }
 .expanded .action-button,
@@ -108,7 +106,8 @@
 	background: #27ae60;
 }
 
-.fab-wrapper .panel-element.activated .panel-button#updateScoresBtn i {
+.fab-wrapper .panel-element.activated .panel-button#updateScoresBtn i,
+.fab-wrapper .panel-element.activated .panel-button:hover#updateScoresBtn i {
 	-webkit-animation: spin 2s linear infinite;
     -moz-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;

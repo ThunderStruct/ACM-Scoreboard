@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.2.2 - 2017-12-4
+### Fixed
+  - Handles being redundantly displayed when an error occurs during verification
+  - The manual score-update button spinning erroneous interruption upon hover
+
 ## 1.2.1 - 2017-12-2
 ### Fixed
   - A bug that prevented loading user handles from a file

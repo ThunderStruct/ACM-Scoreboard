@@ -434,7 +434,7 @@ function recursiveVerification(i) {
             }
         },
         error: (jqXHR, status, error) => {
-            handleElement.text(handles[i] + ' | error occured');
+            handleElement.text(' | error occured');
             if (i == handles.length - 1) {
                 $('#verifyBtn').attr('disabled', false);
                 $('#verifyBtn').attr('title', 'Verify');
