@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 1.3.0 - 2017-12-XX
+## 1.3.0 - 2017-12-08
 ### Added
   - A shortcut button to enable/disable contest table dragging
   - A tool button to add/subtract time from the duration of a running contest
