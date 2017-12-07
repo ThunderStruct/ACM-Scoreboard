@@ -38,7 +38,7 @@ Some useful tools are found in the floating tools button at the bottom-right cor
 
 |  Key  |                    Action                    |  Default  |
 |:-----:|:--------------------------------------------:|:---------:|
-|  `t`  |       Toggle the tools floating button       |  On ( visible )  |
+|  `t`  |       Toggle the tools floating button       |  On (visible)  |
 |  `d`  |  Enable/disable the contest table dragging   |  Disabled  |
 
 #### Documentation
