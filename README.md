@@ -36,10 +36,10 @@ Some useful tools are found in the floating tools button at the bottom-right cor
 
 ### Hotkeys
 
-|  Key  |                    Action                    |
-|:-----:|:--------------------------------------------:|
-|  `t`  |       Toggle the tools floating button       |
-|  `d`  |  Enable/disable the contest table dragging   |
+|  Key  |                    Action                    |  Default  |
+|:-----:|:--------------------------------------------:|:---------:|
+|  `t`  |       Toggle the tools floating button       |  On ( visible )  |
+|  `d`  |  Enable/disable the contest table dragging   |  Disabled  |
 
 #### Documentation
 
