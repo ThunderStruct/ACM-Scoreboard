@@ -9,6 +9,7 @@
 .toast-message {
   -ms-word-wrap: break-word;
   word-wrap: break-word;
+  margin-right: 10px;
 }
 .toast-message a,
 .toast-message label {
@@ -20,9 +21,8 @@
 }
 .toast-close-button {
   position: relative;
-  right: -0.3em;
-  top: -0.3em;
-  float: right;
+  margin-left: auto;
+  order: 2;
   font-size: 20px;
   font-weight: bold;
   color: #FFFFFF;
@@ -56,6 +56,7 @@ button.toast-close-button {
   background: transparent;
   border: 0;
   -webkit-appearance: none;
+  outline: 0;
 }
 .toast-top-center {
   top: 0;
@@ -105,7 +106,13 @@ button.toast-close-button {
   box-sizing: border-box;
   transition: none;
 }
+#toast-container > div * {
+  display: block;
+  transition: all 150ms linear;
+}
 #toast-container > div {
+  display: flex;
+  flex-wrap: wrap;
   position: fixed;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -113,8 +120,9 @@ button.toast-close-button {
   pointer-events: auto;
   overflow: hidden;
   margin: 0 0 6px;
-  padding: 15px 15px 15px 50px;
-  width: 300px;
+  padding: 15px 15px 15px 15px;
+  min-width: 250px;
+  max-width: 600px;
   -moz-border-radius: 1px 1px 1px 1px;
   -webkit-border-radius: 1px 1px 1px 1px;
   border-radius: 1px 1px 1px 1px;
@@ -145,7 +153,7 @@ button.toast-close-button {
 
 #toast-container.toast-top-center > div,
 #toast-container.toast-bottom-center > div {
-  width: 300px;
+  width: auto;
   margin-left: auto;
   margin-right: auto;
 }
@@ -184,7 +192,7 @@ button.toast-close-button {
 @media all and (max-width: 240px) {
   #toast-container > div {
     padding: 8px 8px 8px 50px;
-    width: 11em;
+
   }
   #toast-container > div.rtl {
     padding: 8px 50px 8px 8px;
@@ -201,7 +209,7 @@ button.toast-close-button {
 @media all and (min-width: 241px) and (max-width: 480px) {
   #toast-container > div {
     padding: 8px 8px 8px 50px;
-    width: 18em;
+
   }
   #toast-container > div.rtl {
     padding: 8px 50px 8px 8px;
@@ -218,7 +226,7 @@ button.toast-close-button {
 @media all and (min-width: 481px) and (max-width: 768px) {
   #toast-container > div {
     padding: 15px 15px 15px 50px;
-    width: 25em;
+
   }
   #toast-container > div.rtl {
     padding: 15px 50px 15px 15px;

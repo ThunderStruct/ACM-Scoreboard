@@ -36,10 +36,15 @@ $(window).ready(function() {
     $(document).keypress(function(e) {
         var key = e.which;
         if (key == 116 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 't'
+            // toggle tools button
             $('.fab-wrapper').toggle();
             $('.panel-element').each(function(i, domObj) {
                 $(this).removeClass('selected');
             });
+        }
+        if (key == 100 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'd'
+            // toggle contest table dragging
+            tableIsDraggable = !tableIsDraggable;
         }
     });
 
@@ -59,7 +64,7 @@ $(window).ready(function() {
         var url = 'https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/README.md#acm-scoreboard'
         var success = window.open(url, '_blank');
         if (!success) {
-            showToast('the request to open a new tab was blocked by your browser. check the console for details', 'error', 'short');
+            showToast('the request to open a new tab was blocked by your browser. Check the console for details', 'error', 'short');
             console.log('Add this domain to your Ad-Block\'s whitelist or visit the documentation manually (' + url +')');
         }
 
@@ -111,11 +116,11 @@ $(window).ready(function() {
                 showToast('encoded string copied to clipboard!', 'success', 'short');
             }
             else {
-                showToast('could not copy setup data to clipboard! check the console to copy the encoded string manually', 'error', 'long');
+                showToast('could not copy setup data to clipboard! Check the console to copy the encoded string manually', 'error', 'long');
                 console.log('setup encoded string: ' + compressedSetup);
             }
         } catch (err) {
-            showToast('could not copy setup data to clipboard! check the console to copy the encoded string manually', 'error', 'long');
+            showToast('could not copy setup data to clipboard! Check the console to copy the encoded string manually', 'error', 'long');
             console.log('setup encoded string: ' + compressedSetup);
         }
 
@@ -139,6 +144,24 @@ $(window).ready(function() {
             $('#loadContestBtn').parent().toggleClass('selected');
             $(this).blur();
             $('#loadContestBtn').blur();
+        }
+    });
+
+    $('#addSubtractTimeBtn').on('click', function(e) {
+        if ($(this).hasClass('disabled')) {
+            showToast('modifying contest duration requires a running contest', 'neutral', 'long');
+            return;
+        }
+    }); 
+
+    $('#modifyContestDurationInput')[0].addEventListener('keyup', function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {   // return key
+            addSubtractContestTime($(this).val());
+            $(this).val('');
+            $('#addSubtractTimeBtn').parent().toggleClass('selected');
+            $(this).blur();
+            $('#addSubtractTimeBtn').blur();
         }
     });
 
@@ -504,7 +527,7 @@ function getLastSubmission() {
 }
 
 function cancelSubmission(id) {
-    if (isNaN(id)) {    // invalid id
+    if (isNaN(id) || !id) {    // invalid id
         showToast('invalid submission id', 'error', 'short');
         return;
     }
@@ -517,7 +540,7 @@ function cancelSubmission(id) {
 
     if (cancelledSubmissionIds.indexOf(parsedId) === -1 && parsedId > 0) {
         cancelledSubmissionIds.push(parsedId);
-        showToast('submission id successfully cancelled! update the scores to see changes', 'success', 'long');
+        showToast('submission id successfully cancelled! Update the scores to see changes', 'success', 'long');
         return;
     }
     else if (cancelledSubmissionIds.indexOf(parsedId * -1) === -1 && parsedId < 0) {
@@ -527,11 +550,31 @@ function cancelSubmission(id) {
     }
     else if (cancelledSubmissionIds.indexOf(parsedId * -1) != -1 && parsedId < 0) {
         cancelledSubmissionIds.splice(cancelledSubmissionIds.indexOf(parsedId), 1);
-        showToast('submission id successfully removed from the cancellation list! update the scores to see changes', 'success', 'long');
+        showToast('submission id successfully removed from the cancellation list! Update the scores to see changes', 'success', 'long');
         return;
     }
 
     showToast('submission id already cancelled', 'neutral', 'short');
+}
+
+function addSubtractContestTime(time) {
+    if (isNaN(time) || !time) {    // invalid time
+        showToast('invalid time input', 'error', 'short');
+        return;
+    }
+
+    var ms = time * 1000;
+    var tempCountdown;
+    if (countdownValue.asMilliseconds() + ms < 0) {
+        tempCountdown = 0;
+    }
+    else {
+        tempCountdown = countdownValue.asMilliseconds() + ms;
+    }
+
+    showConfirmationToast('the timer\'s value will change to ' + getFormattedCountdown(tempCountdown), 'CONFIRM', 'DECLINE', function() {
+        countdownValue = moment.duration(tempCountdown, 'milliseconds');
+    });
 }
 
 

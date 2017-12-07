@@ -119,7 +119,7 @@ function addUser(user) {    // add user to the handles array and add the DOM ele
     deleteBtn.type = 'button';
     deleteBtn.onclick = function() { deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handle); };
     var deleteBtnSpan = document.createElement('SPAN');
-    deleteBtnSpan.className = 'glyphicon glyphicon-minus-sign';
+    deleteBtnSpan.className = 'fa fa-minus-circle';
     deleteBtn.appendChild(deleteBtnSpan);
     panel.appendChild(deleteBtn);
 
@@ -209,7 +209,7 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     deleteBtn.type = 'button';
     deleteBtn.onclick = function() { deleteBtnClicked('problemLi' + problemNum.toString() + problemLetter, 'problemLi' + problemNum.toString() + problemLetter); };
     var deleteBtnSpan = document.createElement('SPAN');
-    deleteBtnSpan.className = 'glyphicon glyphicon-minus-sign';
+    deleteBtnSpan.className = 'fa fa-minus-circle';
     deleteBtn.appendChild(deleteBtnSpan);
     panel.appendChild(deleteBtn);
     // possible scores dropdown init

@@ -116,23 +116,45 @@ $(window).ready(function() {
     toastr.options.closeMethod = 'fadeOut';
     toastr.options.closeEasing = 'swing';
     toastr.options.closeDuration = 300;
+
 });
 
 
 
-function showToast(msg, type, duration) {
+function showToast(text, type, duration) {
+    var msg = text.charAt(0).toUpperCase() + text.slice(1);
     var timeOutDuration = duration == 'short' ? 3000 : 5000;    // short: 3 seconds  -- long: 5 seconds
     
     toastr.clear(); // clear current toastr to show next
+    toastr.options.timeOut = timeOutDuration;
     if (type == 'error') {
-        toastr.error(msg, {timeOut: timeOutDuration});
+        toastr.error(msg);
     }
     else if (type == 'success') {
-        toastr.success(msg, {timeOut: timeOutDuration});
+        toastr.success(msg);
     }
     else {  // type == 'neutral'
-        toastr.info(msg, {timeOut: timeOutDuration});
+        toastr.info(msg);
     }
+}
+
+function showConfirmationToast(text, acceptBtnText, cancelBtnText, acceptCallback) {
+    var msg = text.charAt(0).toUpperCase() + text.slice(1);
+    var html = msg + '&nbsp<button id="toastrAcceptBtn" class="setup-submission-btn" style="display: inline-block; background-color: #27ae60; font-size: 10px; width: 70px; height: 25px;">' + acceptBtnText + '</button>&nbsp' +
+    '<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + cancelBtnText + '</button>'
+    toastr.clear(); // clear current toastr to show next
+
+    toastr.options.timeOut = 0;
+    toastr.options.extendedTimeOut = 0;
+    toastr.info(html);
+
+    $('#toastrAcceptBtn').on('click', function() {
+        acceptCallback();
+    });
+
+    $('#toastrCancelBtn').on('click', function() {
+        toastr.clear();
+    });
 }
 
 // minified HTML contest view --- used to create the table and its wrapper div along with other material

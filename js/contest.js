@@ -14,10 +14,17 @@ var handlesOriginalIndices = [];
 var blindTimeOn = false;
 var lastSubmissionData;
 var cancelledSubmissionIds = [];
+var tableIsDraggable = false;
+var tablePrepared = false;
 
 var retrievalCount = 0;
 
 function prepareTable() {   // creates the table's DOM elements and initializes the countdown intervals/variables
+    if (tablePrepared) {
+        return;
+    }
+
+    tablePrepared = true;
     scoreboardTable = $('#scoreboardTable');
 
     for (var i = 0; i <= handles.length; i++) {
@@ -109,19 +116,20 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
     var shouldShowStartAlert = false
     if (moment().unix() > calculatedStartTime)  {   // already started
         countdownValue = moment.duration(diffTime * 1000, 'milliseconds');
-        countdownLabel.innerHTML =  moment(countdownValue.asMilliseconds()).utc().format('H:mm:ss');
+        countdownLabel.innerHTML = getFormattedCountdown(countdownValue.asMilliseconds());
         contestStarted = true;
         retrieveJSONData();     // first retrieval
 
         // Enable floating tool buttons
         $('#toggleBlindModeBtn').removeClass('disabled');
         $('#updateScoresBtn').removeClass('disabled');
+        $('#addSubtractTimeBtn').removeClass('disabled');
     }
     else {
         shouldShowStartAlert = true;
         countdownValue = moment.duration((calculatedEndTime - calculatedStartTime) * 1000, 'milliseconds');
         var startCountdown = moment.duration((calculatedStartTime - moment().unix()) * 1000, 'milliseconds');
-        countdownLabel.innerHTML = moment(startCountdown.asMilliseconds()).utc().format('- H:mm:ss');
+        countdownLabel.innerHTML = '- ' + getFormattedCountdown(startCountdown.asMilliseconds());
         countdownLabel.style.opacity = 0.5;
     }
 
@@ -133,7 +141,7 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
     var countDownRef = setInterval(function() {
         if (moment().unix() < calculatedStartTime) {    // has not started yet
             startCountdown = moment.duration(startCountdown.asMilliseconds() - interval, 'milliseconds');
-            countdownLabel.innerHTML = moment(startCountdown.asMilliseconds()).utc().format('- H:mm:ss');
+            countdownLabel.innerHTML = '- ' + getFormattedCountdown(startCountdown.asMilliseconds());
             return;
         }
 
@@ -148,10 +156,11 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
             // Enable floating tool buttons
             $('#toggleBlindModeBtn').removeClass('disabled');
             $('#updateScoresBtn').removeClass('disabled');
+            $('#addSubtractTimeBtn').removeClass('disabled');
         }
 
         countdownValue = moment.duration(countdownValue.asMilliseconds() - interval, 'milliseconds');
-        countdownLabel.innerHTML = moment(countdownValue.asMilliseconds()).utc().format('H:mm:ss');
+        countdownLabel.innerHTML = getFormattedCountdown(countdownValue.asMilliseconds());
 
         if (countdownValue <= 0) {
             // CONTEST ENDED
@@ -167,6 +176,11 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
             }, 3000);   // stop after 3 seconds
             console.log('%c---CONTEST ENDED---', 'color: black; font-weight:bold;');
             showToast('CONTEST ENDED!', 'success', 'long');
+
+            if (!$('#addSubtractTimeBtn').hasClass('disabled'))
+                $('#addSubtractTimeBtn').addClass('disabled');
+            if (!$('#toggleBlindModeBtn').hasClass('disabled'))
+                $('#toggleBlindModeBtn').addClass('disabled');
         }
     }, interval);   // call every second
 }
@@ -510,6 +524,15 @@ function getFormattedDate(date) {   // used for the cells' titles ('submitted at
     return dateString;
 }
 
+function getFormattedCountdown(ms) {    // used for the contest countdown timer
+    var value = moment.duration(ms, 'milliseconds');
+    var hours = Math.floor(value.asHours());
+    var mins  = Math.floor(value.asMinutes()) - hours * 60;
+    var sec   = Math.floor(value.asSeconds()) - hours * 60 * 60 - mins * 60;
+
+    return hours + ':' + ((mins > 9) ? mins : ('0' + mins)) + ':' + ((sec > 9) ? sec : ('0' + sec));
+}
+
 function scoreSortCompare(a, b) {   // comparator to sort the scores array according to the problem's index in the problems[] array
     if (a.problemIndex < b.problemIndex)
         return -1;
@@ -518,7 +541,11 @@ function scoreSortCompare(a, b) {   // comparator to sort the scores array accor
     return 0;
 }
 
-function draggableDiv(e){
+function draggableDiv(e) {
+    if (!tableIsDraggable) {
+        return;
+    }
+
     window.my_dragging = {};
     my_dragging.pageX0 = e.pageX;
     my_dragging.pageY0 = e.pageY;
@@ -529,7 +556,7 @@ function draggableDiv(e){
         var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
         $(my_dragging.elem).offset({top: top, left: left});
     }
-    function handle_mouseup(e){
+    function handle_mouseup(e) {
         $('body').off('mousemove', handle_dragging).off('mouseup', handle_mouseup);
     }
     $('body').on('mouseup', handle_mouseup).on('mousemove', handle_dragging);
