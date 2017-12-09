@@ -6,6 +6,7 @@
 	margin: 0 auto;
 	padding: 40px;
 	transition: all 20ms linear;
+	min-height: 500px;
 }
 
 .contest-table {

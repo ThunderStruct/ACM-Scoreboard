@@ -20,11 +20,6 @@ var tablePrepared = false;
 var retrievalCount = 0;
 
 function prepareTable() {   // creates the table's DOM elements and initializes the countdown intervals/variables
-    if (tablePrepared) {
-        return;
-    }
-
-    tablePrepared = true;
     scoreboardTable = $('#scoreboardTable');
 
     for (var i = 0; i <= handles.length; i++) {

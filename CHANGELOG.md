@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.3.1 - 2017-12-10
+### Changed
+  - Enhanced the confirmation toasts
+
+### Fixed
+  - An inconsistency resulting in not including any time modifications taking place
+  during contests in the copied setup encoded string
+  - Clicking the "START CONTEST" button repetitively was still causing issues due to a
+  race condition
+  - A bug that caused the setup screen's buttons to still be functional but invisible under
+  the contest table
+
 ## 1.3.0 - 2017-12-08
 ### Added
   - A shortcut button to enable/disable contest table dragging

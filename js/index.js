@@ -146,6 +146,8 @@ function showConfirmationToast(text, acceptBtnText, cancelBtnText, acceptCallbac
 
     toastr.options.timeOut = 0;
     toastr.options.extendedTimeOut = 0;
+    toastr.options.closeButton = false;
+    toastr.options.tapToDismiss = false;
     toastr.info(html);
 
     $('#toastrAcceptBtn').on('click', function() {

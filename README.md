@@ -1,13 +1,7 @@
 # ACM Scoreboard
 >developed for codeforces.com
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
-## Notes
-
-* The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
-- Moreover, this feature can be taken advantage of in case one would like to adjust anything while the contest is on-going or in case a technical problem occured by simply recreating the contest
-
-* User handles' files should be plain text files that contain `'\n'` separated handles (`'%0D'` carriage return character is accounted for)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.3.1-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
 
 ## Usage
 
@@ -30,16 +24,43 @@ _Note: Python is required for the following steps_
 
 _Warning: the server, whether local or remote, *must* be using HTTP protocol, not HTTPS or other, since the Codeforces API is hosted on an HTTP server_
 
+## Setup
+
+There are 3 main components in the setup screen:
+
+  1. *User handles* - can be inserted one at a time or using a `'\n'` separated file (carriage return `'%0D'` can also be used)
+  2. *Problem ID and name* - the contest ID + letter pair that identify a Codeforces problem and optionally its name. All problems' weights are 500 points by default, which can be changed by hovering over the inserted entry
+  3. *Contest duration* - the contest's start and end times (GMT not local time!)
+
+The verify button in the setup screen cross-references the given handle names' solved problems with the given listed problems (for the contest creator's awareness - requires at least 1 handle and 1 problem)
+
+
+## Scoreboard
+
+  - The contest table's rows are dynamically sorted descendingly (top-scorer at the top) after each update
+
+  - The scoreboard updates the data automatically once every 2.5 minutes from the last update
+
+  - The scoreboard table shows the retrieved data in the form of (number of submissions / total problem penalties)
+
+  - Color coding:
+    - Red: only wrong submission(s)
+    - Light green: at least 1 correct submission
+    - Dark green: first submission of a sepcific problem
+
+  - The scoreboard table wrapper is draggable (enable/disable this feature using the hotkey `d`). This feature was added to help with projectors' misalignment and similar cases.
+
+
 ## Tools
 
 Some useful tools are found in the floating tools button at the bottom-right corner of the screen!
 
 ### Hotkeys
 
-|  Key  |                    Action                    |  Default  |
-|:-----:|:--------------------------------------------:|:---------:|
+|  Key  |                    Action                    |    Default     |
+|:-----:|:--------------------------------------------:|:--------------:|
 |  `t`  |       Toggle the tools floating button       |  On (visible)  |
-|  `d`  |  Enable/disable the contest table dragging   |  Disabled  |
+|  `d`  |  Enable/disable the contest table dragging   |    Disabled    |
 
 #### Documentation
 
@@ -136,29 +157,6 @@ This method manually updates the scores and resets the automatic updater's inter
 Requirements:
 - Contest must be running
 
-## Instructions
-
-The verify button in the setup screen cross-references the given handle names' solved problems with the given listed problems (for the contest creator's awareness)
-
-The contest table's rows are dynamically sorted descendingly (top-scorer at the top) after each update
-
-The duration displayed above the scoreboard has a max value of 24 hours. It can be easily adjusted for more in contest.js (`prepareTable()`)
-
-The scoreboard updates the data automatically once every 3 minutes from the last update
-
-The start and end time entered in the setup screen _MUST_ be in UTC (GMT), otherwise the behavior of the scoring equation is unknown
-
-The table scores *ONLY* the submissions in the given time period (even if the entire contest's time is in the past)
-
-The scoreboard table shows the retrieved data in the form of (number of submissions / total problem penalties)
-
-Color coding:
-- Red: only wrong submission(s)
-- Light green: at least 1 correct submission
-- Dark green: first submission of a sepcific problem
-
-The scoreboard table wrapper is draggable. This feature was added to help with projectors' misalignment and similar cases.
-
 ## Scoring
 
 * Difficulty (the points assigned to the problem, which is 500 by default and can be changed by hovering over the problem and choosing a new score)
@@ -200,6 +198,8 @@ Title attributes are assigned to the contest table's cells for convenience
   - [x] Show a confirmation alert on page-unloading attempts while a contest is running (added in 1.1.1)
 
   - [ ] Display scores data in the console when blind-mode is on
+
+  - [ ] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
 
   - [ ] Show a list of all running contests
   

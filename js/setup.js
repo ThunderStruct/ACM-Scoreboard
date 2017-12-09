@@ -280,8 +280,8 @@ function validateSubmission() { // validates the start/end dates and the users' 
 
         // Initialize date/time with offset to get UTC epoch
 
-    startUTCDateEpoch = Number(moment(startTime, 'DD/MM/YYYY H:mm A').format('X')) - (dateRef.getTimezoneOffset() * 60);
-    endUTCDateEpoch = Number(moment(endTime, 'DD/MM/YYYY H:mm A').format('X')) - (dateRef.getTimezoneOffset() * 60);
+    startUTCDateEpoch = Number(moment.utc(startTime, 'DD/MM/YYYY H:mm A').format('X'));
+    endUTCDateEpoch = Number(moment.utc(endTime, 'DD/MM/YYYY H:mm A').format('X'));
 
 
     duration = (endUTCDateEpoch - startUTCDateEpoch) / 60;  // in minutes
@@ -301,12 +301,15 @@ $(document).ready(function() {
     //problems = sampleProblems
 
     $('#submitBtn').on('click', function() {    // Start Contest clicked
-        if (!validateSubmission()) {
+        if (!validateSubmission() || tablePrepared) {
             return;
         }
-
+        
+        tablePrepared = true;
         // success
+        $('#footerDiv').fadeOut(750);
         $('#setupDiv').animate({opacity: '0'}, 750, function() {   // slide out the setupDiv and fade in the tableDiv
+            $('#setupDiv').hide();
             tableDiv = $('#tableDiv');
             $('#tableDiv').append(HTML_CONTEST_TABLE).hide();
             prepareTable();

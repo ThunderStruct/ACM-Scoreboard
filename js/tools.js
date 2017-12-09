@@ -267,7 +267,18 @@ function compressSetupData() {
     var jsonObj = {}
     jsonObj.handles = JSON.parse(handlesJSONStr);
     jsonObj.problems = JSON.parse(problemsJSONStr);
-    jsonObj.time = {startTime: $('#startTime')[0].value, endTime: $('#endTime')[0].value};
+    if (!startUTCDateEpoch || !endUTCDateEpoch) {
+        jsonObj.time = {
+            startTime: $('#startTime')[0].value, 
+            endTime: $('#endTime')[0].value
+        };
+    }
+    else {
+        jsonObj.time = {
+            startTime: moment.utc(new Date(startUTCDateEpoch * 1000)).format('DD/MM/YYYY H:mm A'),
+            endTime: moment.utc(new Date(endUTCDateEpoch * 1000)).format('DD/MM/YYYY H:mm A')
+        };
+    }
     jsonObj.cancelledSubmissions = cancelledSubmissionIds
     
     var uncompressedString = JSON.stringify(jsonObj);
@@ -574,6 +585,9 @@ function addSubtractContestTime(time) {
 
     showConfirmationToast('the timer\'s value will change to ' + getFormattedCountdown(tempCountdown), 'CONFIRM', 'DECLINE', function() {
         countdownValue = moment.duration(tempCountdown, 'milliseconds');
+        endUTCDateEpoch += Number(time);
+        var formattedStr = moment.utc(new Date(endUTCDateEpoch * 1000)).format('DD/MM/YYYY H:mm A');
+        $('#endTime').val(formattedStr).change();
     });
 }
 
