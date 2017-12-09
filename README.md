@@ -48,7 +48,7 @@ The verify button in the setup screen cross-references the given handle names' s
     - Light green: at least 1 correct submission
     - Dark green: first submission of a sepcific problem
 
-  - The scoreboard table wrapper is draggable (enable/disable this feature using the hotkey `d`). This feature was added to help with projectors' misalignment and similar cases.
+  - The scoreboard table wrapper is draggable (enable/disable this feature using the hotkey `d`). This feature was added to help with projectors' misalignment and similar cases
 
 
 ## Tools
