@@ -28,9 +28,9 @@ _Warning: the server, whether local or remote, *must* be using HTTP protocol, no
 
 There are 3 main components in the setup screen:
 
-  1. *User handles* - can be inserted one at a time or using a `'\n'` separated file (carriage return `'%0D'` can also be used)
-  2. *Problem ID and name* - the contest ID + letter pair that identify a Codeforces problem and optionally its name. All problems' weights are 500 points by default, which can be changed by hovering over the inserted entry
-  3. *Contest duration* - the contest's start and end times (GMT not local time!)
+  1. **User handles** - can be inserted one at a time or using a `'\n'` separated file (carriage return `'%0D'` can also be used)
+  2. **Problem ID and name** - the contest ID + letter pair that identify a Codeforces problem and optionally its name. All problems' weights are 500 points by default, which can be changed by hovering over the inserted entry
+  3. **Contest duration** - the contest's start and end times (GMT not local time!)
 
 The verify button in the setup screen cross-references the given handle names' solved problems with the given listed problems (for the contest creator's awareness - requires at least 1 handle and 1 problem)
 
