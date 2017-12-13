@@ -29,10 +29,15 @@ _Warning: the server, whether local or remote, *must* be using HTTP protocol, no
 There are 3 main components in the setup screen:
 
   1. **User handles** - can be inserted one at a time or using a `'\n'` separated file (carriage return `'%0D'` can also be used)
-  2. **Problem ID and name** - the contest ID + letter pair that identify a Codeforces problem and optionally its name. All problems' weights are 500 points by default, which can be changed by hovering over the inserted entry
+  2. **Problem ID and color** - the contest ID + letter pair that identify a Codeforces problem and optionally an associated color (set to `White` if not chosen). All problems' weights are 500 points by default, which can be changed by hovering over the inserted entry
   3. **Contest duration** - the contest's start and end times (GMT not local time!)
 
 The verify button in the setup screen cross-references the given handle names' solved problems with the given listed problems (for the contest creator's awareness - requires at least 1 handle and 1 problem)
+
+Once the setup is complete and the "START CONTEST" button is clicked, pre-contest preparations start. The preparations include:
+
+  1. **Fetching Missing Problem Names** - in case the contest was copied from a running one, all previously fetched problem names will be copied, resulting in less preparation time. In case of an error during problem-name retrieval, an input toast will be shown to prompt for problem removal or manual name insertion (empty strings are allowed)
+  2. **User Handles Validation** - the inserted user handles are recursively validated. All invalid user handles trigger a confirmation toast to remove or keep them
 
 
 ## Scoreboard
@@ -183,6 +188,7 @@ Title attributes are assigned to the contest table's cells for convenience
 ## Credits
 - This scoreboard is solely created by Mohamed Shahawy (ThunderStruct)
 - Hubspot's [PACE](github.hubspot.com/pace/docs/welcome/) loading screen is used
+- A modified version of [jQuery-SimpleColorPicker](https://github.com/tkrotoff/jquery-simplecolorpicker)
 - Matthew Crumley's SO [post](https://stackoverflow.com/a/294421/3551916) on LZW string compression
 
 **Happy ACMing!**
@@ -199,9 +205,9 @@ Title attributes are assigned to the contest table's cells for convenience
 
   - [x] Show a confirmation alert on page-unloading attempts while a contest is running (added in 1.1.1)
 
-  - [ ] Display scores data in the console when blind-mode is on
+  - [x] Display scores data in the console when blind-mode is on
 
-  - [ ] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
+  - [x] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
 
   - [ ] Show a list of all running contests
 
