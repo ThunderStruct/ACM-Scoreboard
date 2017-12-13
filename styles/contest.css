@@ -2,10 +2,14 @@
 /* CSS Document */
 
 /* Contest Scoreboard Style */
+
+#scoreboardWrapper {
+	transition: none;
+}
+
 .contest-wrapper {
 	margin: 0 auto;
 	padding: 40px;
-	transition: all 20ms linear;
 	min-height: 500px;
 }
 
@@ -27,6 +31,17 @@
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, 0);
+}
+
+.problem-color-code {
+	display: inline-block;
+	border-radius: 1px;
+	width: 15px;
+	height: 15px;
+	margin-bottom: -3px;
+	margin-right: 5px;
+	background: #95a5a6;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
 }
 
 .legend-table {
@@ -137,7 +152,7 @@
 .contest-cell {
 	padding: 6px 12px;
 	display: table-cell;
-	font-size: 1.05em;
+	font-size: 13px;
 }
 
 @media screen and (max-width: 580px) {

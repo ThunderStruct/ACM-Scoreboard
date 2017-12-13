@@ -23,11 +23,11 @@ function chooseAFile() {    // choose a file button clicked
 
 function problemSelectChanged(senderId, val) {  // callback function for when a dropdown/select list (problem points) gets changed
     var problemEntry = senderId.substring(9);
-    var problemLetter = problemEntry.slice(-1);
-    var problemNum = problemEntry.slice(0, -1);
+    var problemIndex = problemEntry.slice(-1);
+    var contestId = problemEntry.slice(0, -1);
 
     for (var i = 0; i < problems.length; i += 1) {
-        if (problems[i].problemLetter == problemLetter && problems[i].problemNumber == problemNum) {
+        if (problems[i].problemIndex == problemIndex && problems[i].contestId == contestId) {
             problems[i].problemScore = val;
             break;
         }
@@ -50,11 +50,11 @@ function deleteBtnClicked(senderId, unprocessedId) {    // remove problem/handle
     }
     else {  // is a problem entry (not handle)
         var problemEntry = senderId.substring(9);
-        var problemLetter = problemEntry.slice(-1);
-        var problemNum = problemEntry.slice(0, -1);
+        var problemIndex = problemEntry.slice(-1);
+        var contestId = problemEntry.slice(0, -1);
 
         for (var i = 0; i < problems.length; i += 1) {
-            if (problems[i].problemLetter == problemLetter && problems[i].problemNumber == problemNum) {
+            if (problems[i].problemIndex == problemIndex && problems[i].contestId == contestId) {
                 problems.splice(i, 1);
                 // decrement counter
                 $('#addedProblemsNumber')[0].innerHTML = problems.length > 0 ? problems.length : '';
@@ -138,16 +138,20 @@ function addUser(user) {    // add user to the handles array and add the DOM ele
     setupChangeOccured();
 }
 
-function addProblem(pId, pName, weight) { // add problem to the problems array and add the DOM element
+function addProblem(pId, pName, pColor, weight) { // add problem to the problems array and add the DOM element
     var problem;
-    var problemName;
+    var problemName = '';
+    var problemColor = 'White'; // default color
     if (pId != undefined && pName != undefined) {
         problem = pId;
         problemName = pName;
+        problemColor = pColor ? pColor : problemColor;
     }
     else {    
-        problem = $('#problemNumber')[0].value;
-        problemName = $('#problemName')[0].value;
+        problem = $('#problemId')[0].value;
+        if ($('#problemColor')[0].value) {
+            problemColor = $('#problemColor')[0].value;
+        }
     }
 
     var regex = /(\d+)/g;
@@ -158,23 +162,23 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
         return;
     }
 
-    var problemNum = problem.match(regex);
-    var problemLetter = problem.slice(-1).toUpperCase();
+    var contestId = problem.match(regex);
+    var problemIndex = problem.slice(-1).toUpperCase();
     //validation pt.2
-    if (Number(problemNum) === 0 || !problemLetter[0].match(/[a-z]/i) ) {
+    if (Number(contestId) === 0 || !problemIndex[0].match(/[a-z]/i) ) {
         showToast('invalid problem format! Proper format example: 105C', 'error', 'short');
         return;
     }
     var validationFlag = true;
     problems.forEach( function(item) {
-        if ((item.problemNumber === problemNum.toString() && item.problemLetter === problemLetter) || (item.problemName === problemName && problemName != '')) {
+        if ((item.contestId === contestId.toString() && item.problemIndex === problemIndex) || (item.problemName === problemName && problemName != '')) {
             if (item.problemName === problemName && problemName != '') {
                 showToast('a problem with the name "' + problemName + '" has already been added', 'neutral', 'short');
                 validationFlag = false;
                 return;
             }
             else {
-                showToast('a problem with the code ' + problemNum.toString() + problemLetter + ' has already been added', 'neutral', 'short');
+                showToast('a problem with the code ' + contestId.toString() + problemIndex + ' has already been added', 'neutral', 'short');
                 validationFlag = false;
                 return;
             }
@@ -186,18 +190,25 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     }
 
     problems.push({
-        problemNumber: problemNum.toString(),
-        problemLetter: problemLetter,
+        contestId: contestId.toString(),
+        problemIndex: problemIndex,
         problemName: problemName,
-        problemScore: weight ? weight : 500});    // 500 default
+        problemScore: weight ? weight : 500, // 500 default
+        problemColor: problemColor
+    });    
 
     var list = $('#problemsUl')[0];
     var entry = document.createElement('LI');
     entry.className = 'added-li';
-    entry.id = 'problemLi' + problemNum.toString() + problemLetter;
+    entry.id = 'problemLi' + contestId.toString() + problemIndex;
     var textSpan = document.createElement('SPAN');
     textSpan.className = 'added-li-text';
-    textSpan.appendChild(document.createTextNode(problemNum.toString() + problemLetter + (problemName == '' ? '' : ' - ' + problemName)))
+    var liText = contestId.toString() + problemIndex + (problemName == '' ? '' : ' - ' + problemName);
+    textSpan.appendChild(document.createTextNode(liText + ' - '));
+    var colorSpan = document.createElement('SPAN');
+    colorSpan.style.color = PROBLEM_COLORS[problemColor]
+    colorSpan.innerHTML = problemColor;
+    textSpan.appendChild(colorSpan);
     entry.appendChild(textSpan);
     // init panel
     var panel = document.createElement('DIV');
@@ -207,7 +218,7 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     var deleteBtn = document.createElement('BUTTON');
     deleteBtn.className = 'delete-btn';
     deleteBtn.type = 'button';
-    deleteBtn.onclick = function() { deleteBtnClicked('problemLi' + problemNum.toString() + problemLetter, 'problemLi' + problemNum.toString() + problemLetter); };
+    deleteBtn.onclick = function() { deleteBtnClicked('problemLi' + contestId.toString() + problemIndex, 'problemLi' + contestId.toString() + problemIndex); };
     var deleteBtnSpan = document.createElement('SPAN');
     deleteBtnSpan.className = 'fa fa-minus-circle';
     deleteBtn.appendChild(deleteBtnSpan);
@@ -220,7 +231,7 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
         selector.options[selector.options.length] = new Option(POSSIBLE_SCORES[score]);
     }
     selector.value = weight ? weight : 500;
-    selector.onchange = function() { problemSelectChanged('problemLi' + problemNum.toString() + problemLetter, selector.value) };
+    selector.onchange = function() { problemSelectChanged('problemLi' + contestId.toString() + problemIndex, selector.value) };
 
     panel.appendChild(selector);
 
@@ -232,9 +243,9 @@ function addProblem(pId, pName, weight) { // add problem to the problems array a
     $('#addedProblemsLbl')[0].innerHTML = ' added problem' + (problems.length == 1 ? '' : 's');
 
     // clear text field
-    $('#problemNumber')[0].value = '';
-    $('#problemName')[0].value = '';
-    $('#problemNumber')[0].focus();
+    $('#problemId')[0].value = '';
+    $('#problemColor')[0].value = '';
+    $('#problemId')[0].focus();
 
     setupChangeOccured();
 }
@@ -305,34 +316,36 @@ $(document).ready(function() {
             return;
         }
         
-        tablePrepared = true;
-        // success
-        $('#footerDiv').fadeOut(750);
-        $('#setupDiv').animate({opacity: '0'}, 750, function() {   // slide out the setupDiv and fade in the tableDiv
-            $('#setupDiv').hide();
-            tableDiv = $('#tableDiv');
-            $('#tableDiv').append(HTML_CONTEST_TABLE).hide();
-            prepareTable();
-            $('#tableDiv').fadeIn('slow');
-            $('html,body').animate({
-                scrollTop: $('#scoreboardWrapper').offset().top
-            }, 'slow');
-            // disable load contest
-            if (!$('#loadContestBtn').hasClass('disabled'))
-                $('#loadContestBtn').addClass('disabled');
+        prepareForContest(function() {  // pre-contest preparations
+            // success
+            tablePrepared = true;
+            //$('#footerDiv').fadeOut(750);
+            $('#headerDiv').addClass('small');
+            $('#setupDiv').animate({opacity: '0'}, 500, function() {   // slide out the setupDiv and fade in the tableDiv
+                $('#setupDiv').hide();
+                tableDiv = $('#tableDiv');
+                $('#tableDiv').append(HTML_CONTEST_TABLE).hide();
+                prepareTable();
+                $('#tableDiv').fadeIn('slow');
+                $('html,body').animate({
+                    scrollTop: $('#scoreboardWrapper').offset().top
+                }, 'slow');
+                // disable load contest
+                if (!$('#loadContestBtn').hasClass('disabled'))
+                    $('#loadContestBtn').addClass('disabled');
 
-            // on page unload listener
-            window.onbeforeunload = function() {
-                return 'The current contest will be lost...';
-            };
+                // on page unload listener
+                window.onbeforeunload = function() {
+                    return 'The current contest will be lost...';
+                };
 
-            // start JSON callbacks schedule
-            retrievalIntervalRef = setInterval(function() {
-                retrieveJSONData(true);
-            }, 1200 * 1000); // every 1200 seconds / 10 minutes (in ms)
+                // start JSON callbacks schedule
+                retrievalIntervalRef = setInterval(function() {
+                    retrieveJSONData(true);
+                }, 1200 * 1000); // every 1200 seconds / 10 minutes (in ms)
 
+            });
         });
-        
     });
 })
 
@@ -392,8 +405,8 @@ function recursiveVerification(i) {
 
                 for (var k = 0; k < problems.length; k += 1) {
                     var problem = problems[k];
-                    var num = parseInt(problem.problemNumber, 10);
-                    var letter = problem.problemLetter;
+                    var num = parseInt(problem.contestId, 10);
+                    var letter = problem.problemIndex;
 
                     if (resultsArr[j].verdict == 'OK') {
                         var key = parseInt(resultsArr[j].problem.contestId, 10) + resultsArr[j].problem.index;
@@ -471,6 +484,140 @@ function verify() { // verify button clicked
     recursiveVerification(0);   // starting from handles[0]
 }
 
+
+function recursiveProblemNameFetch(i, completionBlock) {
+    if (i >= problems.length) {
+        completionBlock();
+        return;
+    }
+
+    var problem = problems[i]
+
+    if (problem.problemName) {
+        recursiveProblemNameFetch(i + 1, completionBlock);
+        return;
+    }
+
+    $.ajax({
+        url: 'http://codeforces.com/api/contest.standings',
+        type: 'GET',
+        data: {
+            jsonp: 'callback',
+            showUnofficial: false,
+            contestId: problem.contestId,
+            from: 1,
+            count: 1
+        },
+        dataType: 'JSONP',
+        jsonpCallback: 'callback',
+        success: function(data) {
+            var allProblems = data.result.problems;
+            for (var j = 0; j < allProblems.length; j++) {
+                if (allProblems[j].index == problem.problemIndex) {
+                    problems[i].problemName = allProblems[j].name;
+                    break;
+                }
+            }
+
+            if (!problems[i].problemName) {
+                var problemId = problem.contestId.toString() + problem.problemIndex;
+                showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
+                    if (!name.match(/[a-z]/i)) {
+                        // skipped
+                        recursiveProblemNameFetch(i + 1, completionBlock);
+                        return;
+                    }
+
+                    problems[i].problemName = name;
+                    recursiveProblemNameFetch(i + 1, completionBlock);
+                }, 'REMOVE', function() {
+                    deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
+                    recursiveProblemNameFetch(i, completionBlock);
+                });
+                return;
+            }
+
+
+            recursiveProblemNameFetch(i + 1, completionBlock);
+        },
+        error: function() {
+            var problemId = problem.contestId.toString() + problem.problemIndex;
+            showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
+                if (!name.match(/[a-z]/i)) {
+                    // skipped
+                    recursiveProblemNameFetch(i + 1, completionBlock);
+                    return;
+                }
+
+                problems[i].problemName = name;
+                recursiveProblemNameFetch(i + 1, completionBlock);
+            }, 'REMOVE', function() {
+                deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
+                recursiveProblemNameFetch(i, completionBlock);
+            });
+        }    
+    });
+}
+
+function recursiveHandlesVerification(i, completionBlock) {
+    if (i >= handles.length) {
+        completionBlock();
+        return;
+    }
+
+    $.ajax({
+        url: 'http://codeforces.com/api/user.info',
+        type: 'GET',
+        data: {
+            jsonp: 'callback',
+            'handles': handles[i]
+        },
+        dataType: 'JSONP',
+        jsonpCallback: 'callback',
+        success: function(data) {
+            if (data.status == 'OK') {
+                recursiveHandlesVerification(i + 1, completionBlock);
+                return;
+            }
+
+            showConfirmationToast('user "' + handles[i] + '" does not exist! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
+                var processedHandle = handles[i].replace(/\./g, '\\\\.');
+                deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i]);
+                recursiveHandlesVerification(i, completionBlock);
+            }, function() {
+                recursiveHandlesVerification(i + 1, completionBlock);
+            });
+        },
+        error: function() {
+            showConfirmationToast('user "' + handles[i] + '" does not exist! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
+                var processedHandle = handles[i].replace(/\./g, '\\\\.');
+                deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i]);
+                recursiveHandlesVerification(i, completionBlock);
+            }, function() {
+                recursiveHandlesVerification(i + 1, completionBlock);
+            });
+        }
+    });
+}
+
+function prepareForContest(completionBlock) {
+    $('.pre-contest-progress').fadeIn(400);
+    $('.setup-div').animate({opacity: 0.25}, 400, function() {
+        $('.setup-div').find('*').attr('disabled', true);
+        $('.setup-div').find('*').on('hover', function() {});
+    });
+    $('html,body').animate({scrollTop: $('.pre-contest-progress').offset().top - $(window).height() / 2 + $('.pre-contest-progress').height() / 2}, 300);
+
+    // Fetch problem names
+    $('.pre-contest-loader-text').text('fetching problem names...');
+
+    recursiveProblemNameFetch(0, function() {
+        // Verify handle names
+        $('.pre-contest-loader-text').text('verifying user handles...');
+
+        recursiveHandlesVerification(0, completionBlock);
+    });
+}
 
 
 

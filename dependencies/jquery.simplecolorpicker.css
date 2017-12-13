@@ -1,0 +1,95 @@
+/*!
+ * Very simple jQuery Color Picker
+ * https://github.com/tkrotoff/jquery-simplecolorpicker
+ *
+ * Copyright (C) 2012-2013 Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * Licensed under the MIT license
+ */
+
+/**
+ * Inspired by Bootstrap Twitter.
+ * See https://github.com/twbs/bootstrap/blob/master/less/navbar.less
+ * See https://github.com/twbs/bootstrap/blob/master/less/dropdowns.less
+ */
+
+.simplecolorpicker.picker {
+  transition: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1051; /* Above Bootstrap modal (@zindex-modal = 1050) */
+  display: none;
+  float: left;
+
+  min-width: 160px;
+  max-width: 283px; /* @popover-max-width = 276px + 7 */
+
+  padding: 5px 0 0 5px;
+  margin: 2px 0 0;
+  list-style: none;
+  background-color: #fff; /* @dropdown-bg */
+
+  -webkit-border-radius: 1px; /* @border-radius-base */
+     -moz-border-radius: 1px;
+          border-radius: 1px;
+
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+
+  -webkit-background-clip: padding-box;
+     -moz-background-clip: padding;
+          background-clip: padding-box;
+}
+
+.simplecolorpicker.inline {
+  display: inline-block;
+  padding: 6px 0;
+}
+
+.simplecolorpicker span {
+  margin: 0 5px 5px 0;
+}
+
+.simplecolorpicker.icon,
+.simplecolorpicker span.color {
+  display: inline-block;
+
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.simplecolorpicker.icon:after,
+.simplecolorpicker span.color:after {
+  content: '\00a0\00a0\00a0\00a0'; /* Spaces */
+}
+
+.simplecolorpicker span.color[data-disabled]:hover {
+  cursor: not-allowed;
+  border: 0;
+}
+
+.simplecolorpicker span.color:hover,
+.simplecolorpicker span.color[data-selected],
+.simplecolorpicker span.color[data-selected]:hover {
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+}
+
+.simplecolorpicker span.color:active,
+.simplecolorpicker span.color[data-selected]:active {
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+     -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.simplecolorpicker span.color[data-selected]:after {
+  color: #fff;
+}
+
+/* Vertical separator, replaces optgroup. */
+.simplecolorpicker span.vr {
+  border-left: 1px solid #222; /* @gray-dark */
+}

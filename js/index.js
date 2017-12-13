@@ -23,11 +23,11 @@
 */
 
 var handles = [];   // array of strings containing the handle names
-var problems = [];  // array of {problemNumber: 4, problemName: Watermelon, problemLetter: A, problemScore: 200} objects
+var problems = [];  // array of {contestId: 4, problemName: Watermelon, problemIndex: A, problemScore: 200, problemColor: Green} objects
 var detailedUserData = [];  // used for getSubmissionDetails() - array of {handle: ThunderStruct, data: [{Date: 'Wednesday, November 23rd 2017', 'Total Submissions': 20, 'Total Correct Submissions': 13}], problems: [{id: '4A', submissionTime: 1509919933612, submissionTimeFormatted: 'Wednesday, November 23rd 2017', verdict: 'OK', verdictFormatted: 'Passed'}]} objects
 // Debugging samples
 //var sampleHandles = ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"]
-//var sampleProblems = [{problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}, {problemNumber: "1", problemLetter: "A", problemName: "Test"}]
+//var sampleProblems = [{contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}, {contestId: "1", problemIndex: "A", problemName: "Test"}]
 var duration = 0;
 var startUTCDateEpoch;  // start date in seconds since epoch
 var endUTCDateEpoch;    // end date in seconds since epoch
@@ -38,43 +38,73 @@ var contestStarted = false;
 var userDataRetrievalInProcess = false;
 
 var POSSIBLE_SCORES = [100, 250, 500, 750, 1000, 1500, 2000];
+var PROBLEM_COLORS = {
+    Blue: '#3498db',
+    Green: '#27ae60',
+    Turquoise: '#16a085',
+    Yellow: '#f1c40f',
+    Orange: '#e67e22',
+    Red: '#c0392b',
+    Gray: '#95a5a6',
+    Purple: '#8e44ad',
+    'Dark Blue': '#34495e',
+    White: '#ecf0f1'
+};
+
+var toastrOptions;
 
 /* LISTENERS */
 $(window).ready(function() {
     reader = new FileReader();
     $('#userHandle')[0].addEventListener('keyup', function(event) {
         event.preventDefault();
-      if (event.keyCode === 13) {   // return key
-        addUser("-1");
-      }
+        if (event.keyCode === 13) {   // return key
+            addUser("-1");
+        }
     });
 
-    $('#problemNumber')[0].addEventListener('keyup', function(event) {
+    $('#problemId')[0].addEventListener('keyup', function(event) {
         event.preventDefault();
-      if (event.keyCode === 13) {   // return key
-        addProblem();
-      }
+        if (event.keyCode === 13) {   // return key
+            addProblem();
+        }
     });
 
-    $('#problemName')[0].addEventListener('keyup', function(event) {
+    $('select[name="colorpicker"]').simplecolorpicker({
+        picker: true,
+        pickerDelay: 100,
+        theme: 'fontawesome',
+        attachToInput: $('#problemColor')
+    });
+
+    $('select[name="colorpicker"]').on('change', function() {
+        var sel = $('select[name="colorpicker"]')[0];
+        var colorName = sel.options[sel.selectedIndex].text;
+        var colorHex = sel.options[sel.selectedIndex].value;
+
+        $('#problemColor').val(colorName);
+        $('#problemColor').focus();
+    });
+
+    $('#problemColor')[0].addEventListener('keyup', function(event) {
         event.preventDefault();
-      if (event.keyCode === 13) {   // return key
-        addProblem();
-      }
+        if (event.keyCode === 13) {   // return key
+            addProblem();
+        }
     });
 
     $('#startTime')[0].addEventListener('keyup', function(event) {
         event.preventDefault();
-      if (event.keyCode === 13) {   // return key
-        $('#verifyBtn').click();
-      }
+        if (event.keyCode === 13) {   // return key
+            $('#verifyBtn').click();
+        }
     });
 
     $('#endTime')[0].addEventListener('keyup', function(event) {
         event.preventDefault();
-      if (event.keyCode === 13) {   // return key
-        $('#verifyBtn').click();
-      }
+        if (event.keyCode === 13) {   // return key
+            $('#verifyBtn').click();
+        }
     });
 
     $('#startTime').on('input', function() {
@@ -121,12 +151,15 @@ $(window).ready(function() {
 
 
 
-function showToast(text, type, duration) {
+function showToast(text, type, duration, onHide) {
     var msg = text.charAt(0).toUpperCase() + text.slice(1);
     var timeOutDuration = duration == 'short' ? 3000 : 5000;    // short: 3 seconds  -- long: 5 seconds
     
     toastr.clear(); // clear current toastr to show next
+    resetToastrOptions();
+
     toastr.options.timeOut = timeOutDuration;
+    toastr.options.onHidden = onHide;
     if (type == 'error') {
         toastr.error(msg);
     }
@@ -138,30 +171,84 @@ function showToast(text, type, duration) {
     }
 }
 
-function showConfirmationToast(text, acceptBtnText, cancelBtnText, acceptCallback) {
+function showConfirmationToast(text, acceptBtnText, cancelBtnText, acceptCallback, cancelCallback) {
     var msg = text.charAt(0).toUpperCase() + text.slice(1);
     var html = msg + '&nbsp<button id="toastrAcceptBtn" class="setup-submission-btn" style="display: inline-block; background-color: #27ae60; font-size: 10px; width: 70px; height: 25px;">' + acceptBtnText + '</button>&nbsp' +
-    '<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + cancelBtnText + '</button>'
+    '<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + cancelBtnText + '</button>';
+    
     toastr.clear(); // clear current toastr to show next
+    resetToastrOptions();
 
     toastr.options.timeOut = 0;
     toastr.options.extendedTimeOut = 0;
     toastr.options.closeButton = false;
     toastr.options.tapToDismiss = false;
-    toastr.info(html);
+    var toast = toastr.info(html);
 
     $('#toastrAcceptBtn').on('click', function() {
         acceptCallback();
+        toast.fadeOut('300', function() {
+            toast.remove();
+        });
     });
 
     $('#toastrCancelBtn').on('click', function() {
-        toastr.clear();
+        toast.fadeOut('300', function() {
+            toast.remove();
+        });
+        if (cancelCallback) {
+            cancelCallback();
+        }
     });
+}
+
+function showInputToast(text, placeholder, callback, declineText, declineCallback) {
+    var msg = text.charAt(0).toUpperCase() + text.slice(1);
+    var html = msg + '&nbsp<input id="toastInput" placeholder="' + placeholder + '" style="margin-left: 5px; display: inline-block; padding: 5px;" type="text" />';
+
+    if (declineText) {
+        html = html + 
+        '&nbsp&nbsp or &nbsp<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + declineText + '</button>';
+    }
+
+    toastr.clear(); // clear current toastr to show next
+    resetToastrOptions();
+
+    toastr.options.timeOut = 0;
+    toastr.options.extendedTimeOut = 0;
+    toastr.options.closeButton = false;
+    toastr.options.tapToDismiss = false;
+    var toast = toastr.info(html);
+
+    $('#toastInput')[0].addEventListener('keyup', function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {   // return key
+            callback($(this).val());
+            toast.fadeOut('300', function() {
+                toast.remove();
+            });
+        }
+    });
+
+    $('#toastrCancelBtn').on('click', function() {
+        toast.fadeOut('300', function() {
+            toast.remove();
+            if (declineCallback) {
+                declineCallback();
+            }
+        });
+    });
+}
+
+function resetToastrOptions() {
+    toastr.options.closeButton = true;
+    toastr.options.extendedTimeOut = 1000;
+    toastr.options.tapToDismiss = true;
 }
 
 // minified HTML contest view --- used to create the table and its wrapper div along with other material
 // Used instead of jquery's load method + external view to minimize ajax load time
-var HTML_CONTEST_TABLE = '<div class="contest-wrapper" id="scoreboardWrapper" style="margin-top: -40px"> \n <div calss="contest-info-wrappe" align="center"> \n <label id="countdownTimerLbl" class="setup-lbl" title="Time remaining"> 00:00:00 </label> \n <div class="legend-table"> \n </div> \n </div>  \n <div class="contest-table" id="scoreboardTable" align="center"> \n <div class="contest-row header" id="scoreboardTableHeader"> \n </div> \n </div> \n <br> <div align="center"> \n <label id="lastUpdateLbl" class="setup-lbl">contest has not started yet</label> <br> \n <label id="blindTimeIndicator" class="setup-lbl" style="display: none; opacity: 0.25;" title="Score auto-update disabled">BLIND TIME</label> </div> \n </div> <audio controls hidden="hidden" id="finishSoundAudio"> <source src="sounds/finishSound.mp3", type="audio/mpeg"> </audio>'
+var HTML_CONTEST_TABLE = '<div class="contest-wrapper" id="scoreboardWrapper" style="margin-top: -40px"><div calss="contest-info-wrappe" align="center"><label id="countdownTimerLbl" class="setup-lbl" title="Time remaining">00:00:00</label><div class="legend-table"></div></div><div class="contest-table" id="scoreboardTable" align="center"><div class="contest-row header" id="scoreboardTableHeader"></div></div><br><div align="center"><label id="lastUpdateLbl" class="setup-lbl">contest has not started yet</label><br><label id="blindTimeIndicator" class="setup-lbl" style="display: none; opacity: 0.25;" title="Score auto-update disabled">BLIND TIME</label></div></div>'
 
 
 

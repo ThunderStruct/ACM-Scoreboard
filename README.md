@@ -1,7 +1,7 @@
 # ACM Scoreboard
 >developed for codeforces.com
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.3.1-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
 
 ## Usage
 
@@ -61,6 +61,8 @@ Some useful tools are found in the floating tools button at the bottom-right cor
 |:-----:|:--------------------------------------------:|:--------------:|
 |  `t`  |       Toggle the tools floating button       |  On (visible)  |
 |  `d`  |  Enable/disable the contest table dragging   |    Disabled    |
+|  `f`  |              Toggle fullscreen               |       Off      |
+|  `m`  |       Mute/unmute contest ending sound       |     Unmuted    |
 
 #### Documentation
 
@@ -95,19 +97,19 @@ Requirements:
 The results of the method include:
   - Handle name
   - The last submission's problem details
-  
-  
+
+
 #### Copy Contest
-  
+
 This tool generates an encoded, compressed string and copies it to the clipboard. It is recommended to always have that encoded string in case of an accidental page-refresh or any technical issue to easily load the contest quickly without re-entering the data
-  
+
 Requirements:
   - At least 1 entered user handle
   - At least 1 entered problem data
   - Contest start and end times
-  
+
   *note: ~~the generated string does _NOT_ contain cancelled submissions' data. All cancelled submissions must be re-entered!~~ the generated string contains all cancelled submissions' data as of version 1.1.0*
-  
+
 
 #### Load Contest
 
@@ -194,7 +196,7 @@ Title attributes are assigned to the contest table's cells for convenience
   - [x] Add a tool to edit the contest time (add or subtract x minutes from remaining duration) (added in 1.3.0)
 
   - [x] Add a tool to enable/disable contest table dragging (added in 1.3.0 as a hotkey instead of a tool)
-  
+
   - [x] Show a confirmation alert on page-unloading attempts while a contest is running (added in 1.1.1)
 
   - [ ] Display scores data in the console when blind-mode is on
@@ -202,11 +204,11 @@ Title attributes are assigned to the contest table's cells for convenience
   - [ ] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
 
   - [ ] Show a list of all running contests
-  
+
   #### Contribution Guide
-  
+
   Feel free to make a pull request if you find any room for enhancements or fixing bugs. The following brief file descriptions should be helpful! Please make sure to read the repo's [CONTRIBUTING](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/CONTRIBUTING.md) guide before making any changes
-  
+
   - index.js: some defaults and general initializers
   - contest.js: all the scoreboard/during-contest scripts
   - tools.js: the floating tools scripts

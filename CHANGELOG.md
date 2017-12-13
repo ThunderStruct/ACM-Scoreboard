@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
+## 1.4.0 - 2017-12-13
+### Added
+  - Auto problem name fetching during the pre-contest preparations
+  - A new `Problem Color` setup field to specify a custom color for each problem
+  - More helpful hotkeys
+  - Input toasts to add missing data manually when auto retrieval fails
+  - All invalid user handles will sequentially trigger prompts to remove/keep them upon
+  contest start
+  - Invalid problem IDs will also trigger sequential prompts to remove problem/add problem name
+
+### Changed
+  - Manually retrieving scores during blind-time will now log them in the console instead
+  of repopulating the contest table
+  - Multiple design improvements
+  - Improved variable naming for better readability
+
+### Fixed
+  - Confirmation toasts were not properly dismissed
+  - A bug that caused some of the confirmation toasts' attributes to persist with other
+  toasts
+
+### Removed
+  - The problem name field in the setup screen as problem names are now automatically
+  obtained
+
+
 ## 1.3.1 - 2017-12-10
 ### Changed
   - Enhanced the confirmation toasts
@@ -33,14 +60,17 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - A bug that was caused by not accounting for empty values inserted into the cancelled 
   submissions input
 
-## 1.2.2 - 2017-12-4
+
+## 1.2.2 - 2017-12-04
 ### Fixed
   - Handles being redundantly displayed when an error occurs during verification
   - The manual score-update button spinning erroneous interruption upon hover
 
-## 1.2.1 - 2017-12-2
+
+## 1.2.1 - 2017-12-02
 ### Fixed
   - A bug that prevented loading user handles from a file
+
 
 ## 1.2.0 - 2017-11-29
 ### Added
@@ -54,9 +84,11 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - A bug caused by not accounting for invalid submission IDs when cancelling a 
   submission
 
+
 ## 1.1.1 - 2017-11-28
 ### Added
   - Alert prompt on page-unload during a contest to prevent accidental page-refresh
+
 
 ## 1.1.0 - 2017-11-28
 ### Added
@@ -79,6 +111,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
   - A tiny bug that caused detailed report logging to be interrupted if one of the 
   handles are invalid or a server error occured
+
 
 ## 1.0.0 - 2017-11-12
 ### Added

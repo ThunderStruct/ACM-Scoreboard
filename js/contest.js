@@ -30,8 +30,8 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
             }
             else if (i == 0) {  // problems
                 var name = problems[j - 1]['problemName'];
-                var letter = problems[j - 1]['problemLetter'];
-                var number = problems[j - 1]['problemNumber'];
+                var letter = problems[j - 1]['problemIndex'];
+                var number = problems[j - 1]['contestId'];
 
 
                 $('#scoreboardTableHeader').append(
@@ -39,8 +39,9 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
                                 .attr('id', 'problem' + parseInt(j-1))
                                 .addClass('contest-cell')
                                 .text(number + letter + (name == '' ? '' : ' - ' + name))
-                                .attr('title', 'Points: ' + parseInt(problems[j - 1]['problemScore']))
+                                .attr('title', parseInt(problems[j - 1]['problemScore']) + ' points')
                         );
+                $('#problem' + parseInt(j-1)).prepend('<span class="problem-color-code" style="background: ' + PROBLEM_COLORS[problems[j-1].problemColor] + ';"></div>');
             }
             else if (j == 0) {  // handle names
                 $('#scoreboardTable').append(
@@ -170,7 +171,9 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
                 $('#finishSoundAudio')[0].pause();
             }, 3000);   // stop after 3 seconds
             console.log('%c---CONTEST ENDED---', 'color: black; font-weight:bold;');
-            showToast('CONTEST ENDED!', 'success', 'long');
+            showToast('CONTEST ENDED!', 'success', 'long', function() {
+                $('#finishSoundAudio')[0].pause();
+            });
 
             if (!$('#addSubtractTimeBtn').hasClass('disabled'))
                 $('#addSubtractTimeBtn').addClass('disabled');
@@ -203,8 +206,8 @@ function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds si
 
             for (var k = 0; k < problems.length; k++) {
                 var problem = problems[k];
-                var num = parseInt(problem['problemNumber']);
-                var letter = problem['problemLetter'];
+                var num = parseInt(problem['contestId']);
+                var letter = problem.problemIndex;
 
                 // Score components init
                 var wrongSubmissionsCount = 0;
@@ -246,8 +249,8 @@ function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds si
                                 lastSubmissionData = {
                                     submissionTime: submissionTime,
                                     submissionTimeFormatted: (new Date(submissionTime * 1000)).toString(),
-                                    problemNum: problemData.contestId,
-                                    problemLetter: problemData.index,
+                                    contestId: problemData.contestId,
+                                    problemIndex: problemData.index,
                                     handleIndex: i,
                                     handle: handles[i],
                                     submissionId: resultsArr[j].id
@@ -287,12 +290,12 @@ function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds si
                 //----------------------------
 
 
-                console.log('pushing score for user ' + i + ' (' + handles[i] + ') - problem ' + problems[k].problemNumber + problems[k].problemLetter);
+                console.log('pushing score for user ' + i + ' (' + handles[i] + ') - problem ' + problems[k].contestId + problems[k].problemIndex);
 
 
                 scores.push({
-                    problemNum: problems[k].problemNumber,
-                    problemLetter: problems[k].problemLetter,
+                    contestId: problems[k].contestId,
+                    problemIndex: problems[k].problemIndex,
                     score: problemScore,
                     handleIndex: i,
                     totalSubmissionsCount: wrongSubmissionsCount + correctSubmissionsCount,
@@ -316,8 +319,15 @@ function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds si
                 clearInterval(timeSinceRef);
                 timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000);    // update every second
                 dataIsBeingRetrieved = false;
-                updateDOMElementsWithScores();
-                console.groupEnd();
+
+                if (!blindTimeOn) {
+                    updateDOMElementsWithScores();
+                    console.groupEnd();
+                }
+                else {
+                    console.groupEnd();
+                    logScoresTable();
+                }
 
                 if (scores.length > 0) {
                     // enable corresponding floating tool buttons
@@ -349,7 +359,15 @@ function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds si
                 clearInterval(timeSinceRef);
                 timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000 );   // update every second
                 dataIsBeingRetrieved = false;
-                updateDOMElementsWithScores();
+
+                if (!blindTimeOn) {
+                    updateDOMElementsWithScores();
+                    console.groupEnd();
+                }
+                else {
+                    console.groupEnd();
+                    logScoresTable();
+                }
 
                 if (scores.length > 0) {
                     // enable corresponding floating tool buttons
@@ -406,6 +424,45 @@ function updateTimeSince(date) {    // updates the last update time label
     $('#lastUpdateLbl').text('updated ' + moment(date).fromNow());
 }
 
+function logScoresTable() {
+    var scoreTable = {};
+    /* var table = {
+        ThunderStruct: {
+            '4A - Watermelon': 0 / 0,
+            96A: 
+        },
+        'a.refaat': {
+
+        }
+    };*/
+
+    // set defaults
+    for (var i = 0; i < handles.length; i++) {
+        scoreTable[handles[i]] = {};
+        for (var j = 0; j < problems.length; j++) {
+            var problemId = problems[j].contestId.toString() + problems[j].problemIndex + ' - ' + problems[j].problemName;
+            scoreTable[handles[i]][problemId] = '0 / 0';
+        }
+    }
+
+    // set scores
+    totalScores = new Array(handles.length + 1).join('0').split('').map(parseFloat);
+
+    for (var i = 0; i < scores.length; i++) {
+        totalScores[scores[i]['handleIndex']] += scores[i]['score'];
+
+        var problemId = problems[scores[i]['problemIndex']].contestId.toString() + problems[scores[i]['problemIndex']].problemIndex + ' - ' + problems[scores[i]['problemIndex']].problemName;
+        var penalty = scores[i]['isSolved'] ? problems[scores[i]['problemIndex']]['problemScore'] - scores[i]['score'] : 0;
+        var scoreText = scores[i]['totalSubmissionsCount'].toString() + ' / ' + penalty.toFixed(0);
+
+        scoreTable[handles[scores[i]['handleIndex']]][problemId] = scoreText;
+        scoreTable[handles[scores[i]['handleIndex']]]['Total Score'] = totalScores[scores[i]['handleIndex']];
+    }
+
+    console.table(scoreTable);
+    console.log('%cUpdated at ' + moment(new Date()).format('HH:mm:ss DD/MM/YYYY') + ' (local time)', 'font-weight:bold;');
+    showToast('scores have been successfully logged to the console!', 'success', 'short');
+}
 
 function updateDOMElementsWithScores() {    // updates/populates the table with the retrieved data
     totalScores = new Array(handles.length + 1).join('0').split('').map(parseFloat);

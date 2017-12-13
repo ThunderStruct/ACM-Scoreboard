@@ -34,17 +34,56 @@ $(window).ready(function() {
     });
 
     $(document).keypress(function(e) {
+        /* Hotkeys */
         var key = e.which;
+
+        // toggle tools button
         if (key == 116 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 't'
-            // toggle tools button
             $('.fab-wrapper').toggle();
             $('.panel-element').each(function(i, domObj) {
                 $(this).removeClass('selected');
             });
         }
-        if (key == 100 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'd'
-            // toggle contest table dragging
+        // toggle contest table dragging
+        else if (key == 100 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'd'
             tableIsDraggable = !tableIsDraggable;
+        }
+        // toggle fullscreen
+        else if (key == 102 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'f'
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+        // toggle sound
+        else if (key == 109 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'm'
+            if ($('#finishSoundAudio')[0].volume > 0.9) {
+                // mute
+                $('#finishSoundAudio')[0].volume = 0;
+                showToast('finishing sound muted', 'neutral', 'short');
+            }
+            else {
+                // unmute
+                $('#finishSoundAudio')[0].volume = 1.0;
+                showToast('finishing sound unmuted', 'neutral', 'short');
+            }
         }
     });
 
@@ -247,7 +286,7 @@ function loadContestSetup(compressedString) {
 
     // problems insertion
     jsonObj.problems.forEach(function(problem) {
-        addProblem(problem.problemNumber + problem.problemLetter, problem.problemName, problem.problemScore);
+        addProblem(problem.contestId + problem.problemIndex, problem.problemName, problem.problemColor, problem.problemScore);
     });
 
     $('#startTime').val(jsonObj.time.startTime).change();
@@ -528,7 +567,7 @@ function getLastSubmission() {
 
     console.groupCollapsed('Last Accepted Submission Details');
     console.log('Handle:', lastSubmissionData.handle);
-    console.log('Problem ID:', parseInt(lastSubmissionData.problemNum) + lastSubmissionData.problemLetter);
+    console.log('Problem ID:', parseInt(lastSubmissionData.contestId) + lastSubmissionData.problemIndex);
     console.log('Submission ID:', parseInt(lastSubmissionData.submissionId));
     console.log('Submission Time (in seconds since epoch):', lastSubmissionData.submissionTime);
     console.log('Submission Time Formatted:', lastSubmissionData.submissionTimeFormatted);
