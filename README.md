@@ -217,8 +217,7 @@ Title attributes are assigned to the contest table's cells for convenience
   - [x] Display scores data in the console when blind-mode is on
 
   - [x] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
-
-  - [ ] Show a list of all running contests
+  
 
   #### Contribution Guide
 
