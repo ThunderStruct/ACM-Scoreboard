@@ -360,6 +360,9 @@ $(document).ready(function() {
                 if (!$('#loadContestBtn').hasClass('disabled'))
                     $('#loadContestBtn').addClass('disabled');
 
+                // enable contest dragging hotkey
+                $('#draggingHotkeyElement').removeClass('disabled');
+
                 // on page unload listener
                 window.onbeforeunload = function() {
                     return 'The current contest will be lost...';

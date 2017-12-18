@@ -525,7 +525,9 @@ function getSubmissionDetails() {
             for (var i = 0; i < filteredData.problems.length; i += 1) {
                 var problem = filteredData.problems[i];
                 var problemDayDate = moment((new Date(problem.submissionTime))).format('dddd, MMMM Do YYYY');
-                var dataIdx = filteredData.data.findIndex(row => row.Date == problemDayDate);
+                var dataIdx = filteredData.data.findIndex(function(row) {
+                    return row.Date == problemDayDate;
+                });
                 if (dataIdx === -1) {
                     // create data entry
                     filteredData.data.push({'Date': problemDayDate, 'Total Submissions': 1, 'Total Correct Submissions': problem.verdict == 'OK' ? 1 : 0});
