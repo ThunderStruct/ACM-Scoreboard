@@ -1,7 +1,7 @@
 # ACM Scoreboard
 >developed for codeforces.com
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
 
 ## Usage
 
@@ -22,7 +22,10 @@ _Note: Python is required for the following steps_
 3. `python -m SimpleHTTPServer` for Python 2.x. Alternatively, use `python -m http.server` for Python 3.x
 4. The scoreboard is now accessible through port 8000 (`localhost:8000`)
 
-_Warning: the server, whether local or remote, *must* be using HTTP protocol, not HTTPS or other, since the Codeforces API is hosted on an HTTP server_
+This platform requires a CORS-enabled server. Localhost server do not normally have cross-origin resource sharing on, in that case one of the following browser plugins can be used:
+
+  - Chrome: [Allow-Control-Allow-Origin: *](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en)
+  - Firefox: [CORS Everywhere](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
 
 ## Setup
 
@@ -72,6 +75,12 @@ Some useful tools are found in the floating tools button at the bottom-right cor
 #### Documentation
 
 This method provides a reference by opening the website's documentation in a new tab
+
+No Requirements
+
+#### Light Mode
+
+This tool toggles between Lights On/Off styles
 
 No Requirements
 
@@ -183,12 +192,12 @@ Title attributes are assigned to the contest table's cells for convenience
 * Hovering over any submission cell will display the last submission's date/time
 * Hovering over any handle will display the user's current total score
 
-*note: the scoring equation can be customized in contest.js -> recursiveScoreUpdate()*
+*note: the scoring equation can be customized in contest.js -> calculateScore()*
 
 ## Credits
 - This scoreboard is solely created by Mohamed Shahawy (ThunderStruct)
 - Hubspot's [PACE](github.hubspot.com/pace/docs/welcome/) loading screen is used
-- A modified version of [jQuery-SimpleColorPicker](https://github.com/tkrotoff/jquery-simplecolorpicker)
+- A modified version of [jQuery-SimpleColorPicker](https://github.com/tkrotoff/jquery-simplecolorpicker) (available (here)[https://github.com/ThunderStruct/jquery-simplecolorpicker])
 - Matthew Crumley's SO [post](https://stackoverflow.com/a/294421/3551916) on LZW string compression
 
 **Happy ACMing!**

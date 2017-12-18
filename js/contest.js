@@ -25,7 +25,7 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
     for (var i = 0; i <= handles.length; i++) {
         for (var j = 0; j <= problems.length; j++) {
             if (i == 0 && j == 0) { // handle names header
-                var elem = '<div class="contest-cell" id="handleHeader"> Handle </div>';
+                var elem = '<th class="contest-cell" id="handleHeader">Handle</th>';
                 $('#scoreboardTableHeader').append(elem);
             }
             else if (i == 0) {  // problems
@@ -35,17 +35,19 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
 
 
                 $('#scoreboardTableHeader').append(
-                        $('<div/>')
+                        $('<th/>')
                                 .attr('id', 'problem' + parseInt(j-1))
                                 .addClass('contest-cell')
                                 .text(number + letter + (name == '' ? '' : ' - ' + name))
                                 .attr('title', parseInt(problems[j - 1]['problemScore']) + ' points')
                         );
-                $('#problem' + parseInt(j-1)).prepend('<span class="problem-color-code" style="background: ' + PROBLEM_COLORS[problems[j-1].problemColor] + ';"></div>');
+                if (problems[j-1].problemColor) {
+                    $('#problem' + parseInt(j-1)).prepend('<span class="problem-color-code" style="background: ' + PROBLEM_COLORS[problems[j-1].problemColor] + ';"></div>');
+                }
             }
             else if (j == 0) {  // handle names
                 $('#scoreboardTable').append(
-                        $('<div/>')
+                        $('<tr/>')
                                 .attr('id', 'scoreboardRow' + parseInt(i-1))
                                 .addClass('contest-row')
                         );
@@ -53,17 +55,17 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
                 var key = '#scoreboardRow' + parseInt(i-1);
 
                 $(key).append(
-                        $('<div/>')
+                        $('<td/>')
                                 .attr('id', 'scoreboardCell' + parseInt(i - 1) + ',0')
                                 .addClass('contest-cell')
-                                .text(handles[i-1])
+                                .text(handles[i-1].name)
                                 .attr('title', 'total score: 0')
                         );
             }
             else {  // status cells
                 var key = '#scoreboardRow' + parseInt(i-1);
                 $(key).append(
-                        $('<div/>')
+                        $('<td/>')
                                 .attr('id', 'scoreboardCell' + parseInt(i - 1) + ',' + parseInt(j))
                                 .addClass('contest-cell')
                                 .append('<span/>')
@@ -97,7 +99,7 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
 
     // init original indices
     for (i in handles) {
-        handlesOriginalIndices[handles[i]] = i;
+        handlesOriginalIndices[handles[i].name] = i;
     }
 
     // scoraboard wrapper div draggable
@@ -183,206 +185,201 @@ function prepareTable() {   // creates the table's DOM elements and initializes 
     }, interval);   // call every second
 }
 
+function calculateScore(data) {
+    //------Scoring Equation------
+    // data contains all scoring criteria (problem, handle, firstCorrectSubmissionTime, bestCorrectEfficiency, wrongSubmissionsCount, correctSubmissionsCount)
+    var relativeSubmissionTime = data.firstCorrectSubmissionTime - startUTCDateEpoch;    // seconds since start of the contest
+    var problemPoints = data.problem.problemScore;
+    var timePenaltyFactor = (problemPoints / 2.0) / (duration / 20.0);  // penalty points per 20 minutes
+                                                                        //set so that the contest's duration would decrease the total problem points to half
+    var efficiencyScore = (timePenaltyFactor * 15.0) / (data.bestCorrectEfficiency == 0 ? (timePenaltyFactor * 15.0) : data.bestCorrectEfficiency);   // +20 minutes for best efficiency (15ms)
+    var timePenalty = timePenaltyFactor * (relativeSubmissionTime / 60.0 / 20.0);
+    var wrongSubmissionsPenalty = (timePenaltyFactor / 2.0) * data.wrongSubmissionsCount;    // 10 minutes penalty for every wrong submission
+    var problemScore;
+    if (data.correctSubmissionsCount > 0) {
+        problemScore = problemPoints - timePenalty - wrongSubmissionsPenalty + efficiencyScore;
+    }
+    else { 
+        problemScore = 0;
+    }
+
+    return problemScore;
+}
+
 function recursiveScoreUpdate(i, s) {   // i = user handle index, s = seconds since last update (s not used yet; for future performance update)
+    if (i == handles.length) {
+        // post score update
+        var currDate = new Date();
+        lastUpdateTime = currDate.getTime() / 1000; // seconds since epoch
+        clearInterval(timeSinceRef);
+        timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000 );   // update every second
+        dataIsBeingRetrieved = false;
+
+        if (!blindTimeOn) {
+            updateDOMElementsWithScores();
+            console.groupEnd();
+        }
+        else {
+            console.groupEnd();
+            logScoresTable();
+        }
+
+        if (scores.length > 0) {
+            // enable corresponding floating tool buttons
+            $('#logLastSubmissionBtn').removeClass('disabled');
+            $('#cancelSubmissionBtn').removeClass('disabled');
+        }
+        else {
+            if (!$('#logLastSubmissionBtn').hasClass('disabled'))
+                $('#logLastSubmissionBtn').addClass('disabled');
+            if (!$('#cancelSubmissionBtn').hasClass('disabled'))
+                $('#cancelSubmissionBtn').addClass('disabled');
+        }
+
+        $('#updateScoresBtn').parent().removeClass('activated');
+        return;
+    }
+
     $.ajax({
         url: 'http://codeforces.com/api/user.status',
         type: 'GET',
         data: {
-            jsonp: 'callback',
-            handle: handles[i],
+            handle: handles[i].name,
             from: 1,
             count: 150
         },
-        dataType: 'JSONP',
-        jsonpCallback: 'callback',
         success: function(data) {
-            var callbackStatus = data.status;
-            if (callbackStatus != 'OK') {
-                showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
-                return;
-            }
-            var resultsArr = data.result;
-            console.groupCollapsed('User index: ' + i + ' - handles[index]: ' + handles[i]);
+            setTimeout(function() {
+                var callbackStatus = data.status;
+                if (callbackStatus != 'OK') {
+                    showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
+                    return;
+                }
+                var resultsArr = data.result;
+                console.groupCollapsed('User index: ' + i + ' - handles[index]: ' + handles[i].name);
 
-            for (var k = 0; k < problems.length; k++) {
-                var problem = problems[k];
-                var num = parseInt(problem['contestId']);
-                var letter = problem.problemIndex;
+                for (var k = 0; k < problems.length; k++) {
+                    var problem = problems[k];
+                    var num = parseInt(problem['contestId']);
+                    var letter = problem.problemIndex;
 
-                // Score components init
-                var wrongSubmissionsCount = 0;
-                var correctSubmissionsCount = 0;
-                var bestCorrectEfficiency = 1000000;
-                var firstCorrectSubmissionTime = 0;
+                    // Score components init
+                    var wrongSubmissionsCount = 0;
+                    var correctSubmissionsCount = 0;
+                    var bestCorrectEfficiency = 1000000;
+                    var firstCorrectSubmissionTime = 0;
 
-                for (var j = 0; j < resultsArr.length; j++) {   // retrieved results loop
+                    for (var j = 0; j < resultsArr.length; j++) {   // retrieved results loop
 
-                    var problemData = resultsArr[j]['problem']
-                    var submissionTime = resultsArr[j]['creationTimeSeconds'];  // unix timestamp
-                    if (submissionTime < startUTCDateEpoch || submissionTime > endUTCDateEpoch) {
-                        continue;   // out of contest time range
-                    }
-
-                    if (cancelledSubmissionIds.indexOf(resultsArr[j].id) != -1) {
-                        // submission cancelled
-                        // reset DOM
-                        var cell = $('#scoreboardCell' + (parseInt(i) + ',' + parseInt(k + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
-                        cell.className = 'cell';
-                        cell.innerHTML = '0 / 0';
-                        continue;
-                    }
-
-                    if (num == problemData['contestId'] && letter == problemData['index']) {
-                        // problem submitted
-                        if (resultsArr[j]['verdict'] == 'OK') {
-                            // problem accepted
-                            correctSubmissionsCount++;
-                            if (bestCorrectEfficiency > resultsArr[j]['timeConsumedMillis']) {
-                                bestCorrectEfficiency = resultsArr[j]['timeConsumedMillis'];
-                            }
-                            if (firstCorrectSubmissionTime == 0 || firstCorrectSubmissionTime > resultsArr[j]['creationTimeSeconds']) {
-                                firstCorrectSubmissionTime = resultsArr[j]['creationTimeSeconds'];
-                            }
-
-                            // update last submission
-                            if (!lastSubmissionData || lastSubmissionData.submissionTime < submissionTime) {
-                                lastSubmissionData = {
-                                    submissionTime: submissionTime,
-                                    submissionTimeFormatted: (new Date(submissionTime * 1000)).toString(),
-                                    contestId: problemData.contestId,
-                                    problemIndex: problemData.index,
-                                    handleIndex: i,
-                                    handle: handles[i],
-                                    submissionId: resultsArr[j].id
-                                };
-                            }
+                        var problemData = resultsArr[j]['problem']
+                        var submissionTime = resultsArr[j]['creationTimeSeconds'];  // unix timestamp
+                        if (submissionTime < startUTCDateEpoch || submissionTime > endUTCDateEpoch) {
+                            continue;   // out of contest time range
                         }
-                        else if (!resultsArr[j].verdict) {
-                            // in queue / no verdict
+
+                        if (cancelledSubmissionIds.indexOf(resultsArr[j].id) != -1) {
+                            // submission cancelled
+                            // reset DOM
+                            var cell = $('#scoreboardCell' + (parseInt(i) + ',' + parseInt(k + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
+                            cell.className = 'cell';
+                            cell.innerHTML = '0 / 0';
                             continue;
                         }
-                        else {
-                            // problem rejected
-                            wrongSubmissionsCount++;
+
+                        if (num == problemData['contestId'] && letter == problemData['index']) {
+                            // problem submitted
+                            if (resultsArr[j]['verdict'] == 'OK') {
+                                // problem accepted
+                                correctSubmissionsCount++;
+                                if (bestCorrectEfficiency > resultsArr[j]['timeConsumedMillis']) {
+                                    bestCorrectEfficiency = resultsArr[j]['timeConsumedMillis'];
+                                }
+                                if (firstCorrectSubmissionTime == 0 || firstCorrectSubmissionTime > resultsArr[j]['creationTimeSeconds']) {
+                                    firstCorrectSubmissionTime = resultsArr[j]['creationTimeSeconds'];
+                                }
+
+                                // update last submission
+                                if (!lastSubmissionData || lastSubmissionData.submissionTime < submissionTime) {
+                                    lastSubmissionData = {
+                                        submissionTime: submissionTime,
+                                        submissionTimeFormatted: (new Date(submissionTime * 1000)).toString(),
+                                        contestId: problemData.contestId,
+                                        problemIndex: problemData.index,
+                                        handleIndex: i,
+                                        handle: handles[i].name,
+                                        submissionId: resultsArr[j].id
+                                    };
+                                }
+                            }
+                            else if (!resultsArr[j].verdict) {
+                                // in queue / no verdict
+                                continue;
+                            }
+                            else {
+                                // problem rejected
+                                wrongSubmissionsCount++;
+                            }
+
                         }
-
                     }
+
+                    if (correctSubmissionsCount + wrongSubmissionsCount == 0) {
+                        continue;   // no submission made
+                    }
+
+                    // Calculate score
+                    var problemScore = calculateScore({
+                        problem: problems[k], 
+                        handle: handles[i].name,
+                        'firstCorrectSubmissionTime': firstCorrectSubmissionTime, 
+                        'bestCorrectEfficiency': bestCorrectEfficiency,
+                        'wrongSubmissionsCount': wrongSubmissionsCount,
+                        'correctSubmissionsCount': correctSubmissionsCount
+                    });
+
+                    console.log('pushing score for user ' + i + ' (' + handles[i].name + ') - problem ' + problems[k].contestId + problems[k].problemIndex);
+
+
+                    scores.push({
+                        contestId: problems[k].contestId,
+                        problemIndex: problems[k].problemIndex,
+                        score: problemScore,
+                        handleIndex: i,
+                        totalSubmissionsCount: wrongSubmissionsCount + correctSubmissionsCount,
+                        problemIndex: k,
+                        problemSubmissionTimeUNIX: firstCorrectSubmissionTime,
+                        problemSubmissionTimeString: getFormattedDate(firstCorrectSubmissionTime),
+                        isSolved: (correctSubmissionsCount > 0)
+                    });
+
                 }
 
-                if (correctSubmissionsCount + wrongSubmissionsCount == 0) {
-                    continue;   // no submission made
-                }
-
-                //------Scoring Equation------
-                //---(for problem k user i)---
-                //----------------------------
-                var relativeSubmissionTime = firstCorrectSubmissionTime - startUTCDateEpoch;    // seconds since start of the contest
-                var problemPoints = problems[k].problemScore;
-                var timePenaltyFactor = (problemPoints / 2.0) / (duration / 20.0);  // penalty points per 20 minutes
-                                                                                    //set so that the contest's duration would decrease the total problem points to half
-                var efficiencyScore = (timePenaltyFactor * 15.0) / (bestCorrectEfficiency == 0 ? (timePenaltyFactor * 15.0) : bestCorrectEfficiency);   // +20 minutes for best efficiency (15ms)
-                var timePenalty = timePenaltyFactor * (relativeSubmissionTime / 60.0 / 20.0);
-                var wrongSubmissionsPenalty = (timePenaltyFactor / 2.0) * wrongSubmissionsCount;    // 10 minutes penalty for every wrong submission
-                if (correctSubmissionsCount > 0) {
-                    var problemScore = problemPoints - timePenalty - wrongSubmissionsPenalty + efficiencyScore;
-                }
-                else problemScore = 0;
-                //----------------------------
-
-
-                console.log('pushing score for user ' + i + ' (' + handles[i] + ') - problem ' + problems[k].contestId + problems[k].problemIndex);
-
-
-                scores.push({
-                    contestId: problems[k].contestId,
-                    problemIndex: problems[k].problemIndex,
-                    score: problemScore,
-                    handleIndex: i,
-                    totalSubmissionsCount: wrongSubmissionsCount + correctSubmissionsCount,
-                    problemIndex: k,
-                    problemSubmissionTimeUNIX: firstCorrectSubmissionTime,
-                    problemSubmissionTimeString: getFormattedDate(firstCorrectSubmissionTime),
-                    isSolved: (correctSubmissionsCount > 0)
-                });
-
-            }
-
-            console.groupEnd();
-            if (i + 1 < handles.length) {
-                setTimeout(recursiveScoreUpdate(i + 1, s), 100);    // 100ms / 10 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
-            if (i == handles.length - 1) {  // last user in the array i.e: recursive retrieval is done
-                // post score update
-                var currDate = new Date();
-                lastUpdateTime = currDate.getTime() / 1000; // seconds since epoch
-                clearInterval(timeSinceRef);
-                timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000);    // update every second
-                dataIsBeingRetrieved = false;
-
-                if (!blindTimeOn) {
-                    updateDOMElementsWithScores();
-                    console.groupEnd();
-                }
-                else {
-                    console.groupEnd();
-                    logScoresTable();
-                }
-
-                if (scores.length > 0) {
-                    // enable corresponding floating tool buttons
-                    $('#logLastSubmissionBtn').removeClass('disabled');
-                    $('#cancelSubmissionBtn').removeClass('disabled');
-                }
-                else {
-                    if (!$('#logLastSubmissionBtn').hasClass('disabled'))
-                        $('#logLastSubmissionBtn').addClass('disabled');
-                    if (!$('#cancelSubmissionBtn').hasClass('disabled'))
-                        $('#cancelSubmissionBtn').addClass('disabled');
-                }
-
-                $('#updateScoresBtn').parent().removeClass('activated');
-            }
-
+                console.groupEnd();
+                
+                recursiveScoreUpdate(i + 1, s);
+            }, 250);    // 250ms delay
         },
-        error: (jqXHR, status, error) =>  {
-            dataIsBeingRetrieved = false;
-
-            if (i + 1 < handles.length) {
-                setTimeout(recursiveScoreUpdate(i + 1, s), 100);    // 100ms / 10 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
-            if (i == handles.length - 1) {  // last user in the array i.e: recursive retrieval is done
-                // post score update
-                var currDate = new Date();
-                lastUpdateTime = currDate.getTime() / 1000; // seconds since epoch
-                clearInterval(timeSinceRef);
-                timeSinceRef = setInterval( function() { updateTimeSince(currDate) }, 1000 );   // update every second
-                dataIsBeingRetrieved = false;
-
-                if (!blindTimeOn) {
-                    updateDOMElementsWithScores();
-                    console.groupEnd();
+        error: function(jqXHR, type, status) {
+            setTimeout(function() {
+                if (jqXHR.responseJSON) {
+                    console.log('Error ' + jqXHR.status.toString() + ': ' + jqXHR.responseJSON.comment)
                 }
                 else {
-                    console.groupEnd();
-                    logScoresTable();
+                    console.log('Error code ' + jqXHR.status.toString() + '. Make sure CORS is enabled');
                 }
 
-                if (scores.length > 0) {
-                    // enable corresponding floating tool buttons
-                    $('#logLastSubmissionBtn').removeClass('disabled');
-                    $('#cancelSubmissionBtn').removeClass('disabled');
-                }
-                else {
-                    if (!$('#logLastSubmissionBtn').hasClass('disabled'))
-                        $('#logLastSubmissionBtn').addClass('disabled');
-                    if (!$('#cancelSubmissionBtn').hasClass('disabled'))
-                        $('#cancelSubmissionBtn').addClass('disabled');
+                switch (jqXHR.status) {
+                    case 503:                // service temporarily unavailable
+                    case 429:                // too many requests
+                        // Try again
+                        recursiveScoreUpdate(i, s);
+                        break;
+                    case 400:                // bad request
+                    default:
+                        recursiveScoreUpdate(i + 1, s);
                 }
 
-                $('#updateScoresBtn').parent().removeClass('activated');
-            }
+            }, 250);    // 250ms delay
         }
     });
 }
@@ -404,8 +401,8 @@ function retrieveJSONData(isAuto) { // isAuto can be used to differentiate betwe
 
 }
 
-/* DEPRECATED */
-function toggleFullscreen() {   // fades out the title to make more vertical space available
+/* DEPRECATED - Newer version in tools.js */
+/*function toggleFullscreen() {   // fades out the title to make more vertical space available
     if (!isFullscreenMode) {
         $('#headerDiv').fadeOut('slow', function() {
             isFullscreenMode = true;
@@ -418,7 +415,7 @@ function toggleFullscreen() {   // fades out the title to make more vertical spa
         });
         $('#scoreboardWrapper').animate({width: '100%', height: '100%'}, 750);
     }
-}
+}*/
 
 function updateTimeSince(date) {    // updates the last update time label
     $('#lastUpdateLbl').text('updated ' + moment(date).fromNow());
@@ -438,10 +435,10 @@ function logScoresTable() {
 
     // set defaults
     for (var i = 0; i < handles.length; i++) {
-        scoreTable[handles[i]] = {};
+        scoreTable[handles[i].name] = {};
         for (var j = 0; j < problems.length; j++) {
             var problemId = problems[j].contestId.toString() + problems[j].problemIndex + ' - ' + problems[j].problemName;
-            scoreTable[handles[i]][problemId] = '0 / 0';
+            scoreTable[handles[i].name][problemId] = '0 / 0';
         }
     }
 
@@ -455,8 +452,8 @@ function logScoresTable() {
         var penalty = scores[i]['isSolved'] ? problems[scores[i]['problemIndex']]['problemScore'] - scores[i]['score'] : 0;
         var scoreText = scores[i]['totalSubmissionsCount'].toString() + ' / ' + penalty.toFixed(0);
 
-        scoreTable[handles[scores[i]['handleIndex']]][problemId] = scoreText;
-        scoreTable[handles[scores[i]['handleIndex']]]['Total Score'] = totalScores[scores[i]['handleIndex']];
+        scoreTable[handles[scores[i]['handleIndex']].name][problemId] = scoreText;
+        scoreTable[handles[scores[i]['handleIndex']].name]['Total Score'] = totalScores[scores[i]['handleIndex']];
     }
 
     console.table(scoreTable);
@@ -471,7 +468,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
     for (var i = 0; i < scores.length; i++) {   // update totalScores and each problem score
         totalScores[scores[i]['handleIndex']] += scores[i]['score'];
 
-        var cell = $('#scoreboardCell' + (parseInt(handlesOriginalIndices[handles[scores[i]['handleIndex']]]) + ',' + parseInt(scores[i]['problemIndex'] + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
+        var cell = $('#scoreboardCell' + (parseInt(handlesOriginalIndices[handles[scores[i]['handleIndex']].name]) + ',' + parseInt(scores[i]['problemIndex'] + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
         var penalty = scores[i]['isSolved'] ? problems[scores[i]['problemIndex']]['problemScore'] - scores[i]['score'] : 0;
         cell.innerHTML = ('<span>' + scores[i]['totalSubmissionsCount']).toString() + ' / ' + penalty.toFixed(0) + '</span>';
         if (scores[i].problemSubmissionTimeUNIX > 0)
@@ -490,7 +487,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
 
     /* highlight last submission
     if (lastSubmission.time != 0) {    // if a submission exists
-        var cell = $('#scoreboardCell' + handlesOriginalIndices[handles[lastSubmission.handleIndex]] + ',' + parseInt(lastSubmission.problemIndex + 1))[0];
+        var cell = $('#scoreboardCell' + handlesOriginalIndices[handles[lastSubmission.handleIndex].name] + ',' + parseInt(lastSubmission.problemIndex + 1))[0];
         cell.className = 'contest-cell last-submission';
     } */
 
@@ -501,7 +498,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
             break;
         }*/
         // Set handle titles
-        var cell = $('#scoreboardCell' + (handlesOriginalIndices[handles[i]] + ',0').replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
+        var cell = $('#scoreboardCell' + (handlesOriginalIndices[handles[i].name] + ',0').replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
         cell.title = 'Total score: ' + totalScores[i].toFixed(2);
     }
 
@@ -510,7 +507,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
 
 
     for (var i = 0; i < scores.length; i++) {
-        var cell = $('#scoreboardCell' + (handlesOriginalIndices[handles[scores[i]['handleIndex']]] + ',' + parseInt(scores[i]['problemIndex'] + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
+        var cell = $('#scoreboardCell' + (handlesOriginalIndices[handles[scores[i]['handleIndex']].name] + ',' + parseInt(scores[i]['problemIndex'] + 1)).replace(/(:|\.|\[|\]|\,)/g, "\\$1"))[0];
         if (!(scores[i].isSolved)) {
             // wrong answer
             cell.className='contest-cell wrong-answer';
@@ -541,7 +538,7 @@ function updateDOMElementsWithScores() {    // updates/populates the table with 
 }
 
 function sortTableRows() {  // sorts table rows according to scores (descending order)
-    var rows = $('#scoreboardTable').find('div.contest-row').get();
+    var rows = $('#scoreboardTable').find('.contest-row').get();
     var swapOccured = true;
     // Bubble sort - to concurrently sort multiple arrays
     for (var k = 0; k < totalScores.length && swapOccured; k++) {
@@ -593,26 +590,6 @@ function scoreSortCompare(a, b) {   // comparator to sort the scores array accor
     return 0;
 }
 
-function draggableDiv(e) {
-    if (!tableIsDraggable) {
-        return;
-    }
-
-    window.my_dragging = {};
-    my_dragging.pageX0 = e.pageX;
-    my_dragging.pageY0 = e.pageY;
-    my_dragging.elem = this;
-    my_dragging.offset0 = $(this).offset();
-    function handle_dragging(e){
-        var left = my_dragging.offset0.left + (e.pageX - my_dragging.pageX0);
-        var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
-        $(my_dragging.elem).offset({top: top, left: left});
-    }
-    function handle_mouseup(e) {
-        $('body').off('mousemove', handle_dragging).off('mouseup', handle_mouseup);
-    }
-    $('body').on('mouseup', handle_mouseup).on('mousemove', handle_dragging);
-}
 
 
 

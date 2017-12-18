@@ -28,7 +28,7 @@
   padding: 5px 0 0 5px;
   margin: 2px 0 0;
   list-style: none;
-  background-color: #fff; /* @dropdown-bg */
+  background-color: var(--input-background); /* @dropdown-bg */
 
   -webkit-border-radius: 1px; /* @border-radius-base */
      -moz-border-radius: 1px;
@@ -70,12 +70,18 @@
   border: 0;
 }
 
+.simplecolorpicker span.color {
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+}
+
 .simplecolorpicker span.color:hover,
 .simplecolorpicker span.color[data-selected],
 .simplecolorpicker span.color[data-selected]:hover {
-    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
-     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.46);
+    -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.46);
+     -moz-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.46);
+          box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.46);
 }
 
 .simplecolorpicker span.color:active,
@@ -86,7 +92,7 @@
 }
 
 .simplecolorpicker span.color[data-selected]:after {
-  color: #fff;
+  color: var(--input-background);
 }
 
 /* Vertical separator, replaces optgroup. */

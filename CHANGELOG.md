@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.5.0 - 2017-12-xx
+### Added
+  - Major stability improvements and better error handling
+    - Error logging
+    - Self-handling 429 and 503 errors by auto-retrying the requests
+    - More informative feedback (previously some labels just showed 'an error occured'
+    upon failure)
+    - Multiple new validation layers
+  - An alternative "lights on" theme that can be toggled through the tools menu
+  - Expanding the tools menu will now show a hotkeys legend
+  - A version label to the title that will redirect to the changelog
+  - Pre-validated user handles (copied from running contests) will be skipped in the
+  pre-contest validation process
+
+### Changed
+  - Minor design inconsistency in the color picker palette
+  - Assigning problem colors is now optional with no forced default color
+  - Ajax requests pattern for better maintainability
+  - Contest table restructuring for future updates compatibility
+  - Separated the scoring equation into its own `calculateScore()` method for easier customization
+  - Setup screen minor design changes
+  - Stylesheets restructuring and numerous improvements
+
+### Fixed
+  - Added a slight delay between ajax calls to prevent server 503/429 responses during 
+  pre-contest preparations
+  - Handles' insertion now validates for case-insensitive duplicates and invalid special
+  characters
+
+### Removed
+  - Cross-domain support to allow error response-parsing (all JSONP requests have been changed 
+  to JSON, requiring a CORS-enabled browser or an HTTP non-local server to abide by the 
+  same-origin policy)
+
 
 ## 1.4.0 - 2017-12-13
 ### Added

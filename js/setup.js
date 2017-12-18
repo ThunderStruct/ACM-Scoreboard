@@ -35,11 +35,20 @@ function problemSelectChanged(senderId, val) {  // callback function for when a 
 
 }
 
+function handlesIndexOf(handle) {
+    for (var i = 0; i < handles.length; i++) {
+        if (handles[i].name == handle) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 function deleteBtnClicked(senderId, unprocessedId) {    // remove problem/handle
     var isHandle = (senderId.substring(0, 8) == 'handleLi');
     if (isHandle) {
         var senderHandle = unprocessedId.substring(8);
-        var index = handles.indexOf(senderHandle);
+        var index = handlesIndexOf(senderHandle);
         if (index > -1) {
             handles.splice(index, 1);
             // decrement counter
@@ -70,44 +79,56 @@ function deleteBtnClicked(senderId, unprocessedId) {    // remove problem/handle
     setupChangeOccured();
 }
 
-function addUser(user) {    // add user to the handles array and add the DOM element
-    var handle;
+function arrayCaseInsensitiveFind(arr, elem) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].name.toLowerCase() == elem.toLowerCase()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function addUser(user, validity) {    // add user to the handles array and add the DOM element
+    var handleName;
     if (user == '-1') {
-        handle = $('#userHandle')[0].value;
+        handleName = $('#userHandle')[0].value;
     } else {
-        handle = user;
+        handleName = user;
     }
 
-    handle = handle.replace(/[\n\r]/g, ''); // carriage return char support
+    handleName = handleName.replace(/[\n\r]/g, ''); // carriage return char support
 
     // validation
-    if (handle === '') {
+    if (handleName === '' || handleName.length > 24 || !handleName.match('^[A-Za-z0-9_-]+$')) {
         if (user == '-1') {
             showToast('missing or invalid handle', 'error', 'short');
         }
         return;
     }
 
-    if (handles.indexOf(handle) !== -1) {
+    if (arrayCaseInsensitiveFind(handles, handleName)) {
         if (user == '-1') {
-            showToast('the handle ' + handle + ' has already been added to the list', 'neutral', 'short');
+            showToast('the handle ' + handleName + ' has already been added to the list', 'neutral', 'short');
         }
         return;
     }
 
-    handles.push(handle);
+    handles.push({
+        name: handleName,
+        valid: validity
+    });
     var list = $('#handlesUl')[0];
     var entry = document.createElement('LI');
     entry.className = 'added-li';
-    var processedHandle = handle.replace(/\./g, '\\\\.');
-    entry.id = 'handleLi' + handle;
+    var processedHandle = handleName.replace(/\./g, '\\\\.');
+    entry.id = 'handleLi' + handleName;
     var span = document.createElement('SPAN');
-    span.id = 'handleLi' + handle + 'Span';
+    span.id = 'handleLi' + handleName + 'Span';
     span.className = 'added-li-text';
-    span.appendChild(document.createTextNode(handle))
+    span.appendChild(document.createTextNode(handleName))
     var statusSpan = document.createElement('SPAN');
     statusSpan.className = 'added-li-status-text';
-    statusSpan.id = 'handleLi' + handle + 'StatusSpan';
+    statusSpan.id = 'handleLi' + handleName + 'StatusSpan';
     span.appendChild(statusSpan);
     entry.appendChild(span);
     // init panel
@@ -117,7 +138,7 @@ function addUser(user) {    // add user to the handles array and add the DOM ele
     var deleteBtn = document.createElement('BUTTON');
     deleteBtn.className = 'delete-btn';
     deleteBtn.type = 'button';
-    deleteBtn.onclick = function() { deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handle); };
+    deleteBtn.onclick = function() { deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handleName); };
     var deleteBtnSpan = document.createElement('SPAN');
     deleteBtnSpan.className = 'fa fa-minus-circle';
     deleteBtn.appendChild(deleteBtnSpan);
@@ -141,11 +162,11 @@ function addUser(user) {    // add user to the handles array and add the DOM ele
 function addProblem(pId, pName, pColor, weight) { // add problem to the problems array and add the DOM element
     var problem;
     var problemName = '';
-    var problemColor = 'White'; // default color
+    var problemColor;
     if (pId != undefined && pName != undefined) {
         problem = pId;
         problemName = pName;
-        problemColor = pColor ? pColor : problemColor;
+        problemColor = pColor;
     }
     else {    
         problem = $('#problemId')[0].value;
@@ -157,8 +178,10 @@ function addProblem(pId, pName, pColor, weight) { // add problem to the problems
     var regex = /(\d+)/g;
 
     //validation
-    if (problem === '') {
-        showToast('missing or invalid input', 'error', 'short');
+    if (problem === '' || problem.length > 5) {
+        if (!pId && !pName) {
+            showToast('missing or invalid input', 'error', 'short');
+        }
         return;
     }
 
@@ -204,11 +227,14 @@ function addProblem(pId, pName, pColor, weight) { // add problem to the problems
     var textSpan = document.createElement('SPAN');
     textSpan.className = 'added-li-text';
     var liText = contestId.toString() + problemIndex + (problemName == '' ? '' : ' - ' + problemName);
-    textSpan.appendChild(document.createTextNode(liText + ' - '));
-    var colorSpan = document.createElement('SPAN');
-    colorSpan.style.color = PROBLEM_COLORS[problemColor]
-    colorSpan.innerHTML = problemColor;
-    textSpan.appendChild(colorSpan);
+    textSpan.appendChild(document.createTextNode(liText));
+    if (problemColor) {
+        textSpan.appendChild(document.createTextNode(' - '));
+        var colorSpan = document.createElement('SPAN');
+        colorSpan.style.color = PROBLEM_COLORS[problemColor];
+        colorSpan.innerHTML = problemColor;
+        textSpan.appendChild(colorSpan);
+    }
     entry.appendChild(textSpan);
     // init panel
     var panel = document.createElement('DIV');
@@ -342,7 +368,7 @@ $(document).ready(function() {
                 // start JSON callbacks schedule
                 retrievalIntervalRef = setInterval(function() {
                     retrieveJSONData(true);
-                }, 1200 * 1000); // every 1200 seconds / 10 minutes (in ms)
+                }, 150 * 1000); // every 150 seconds - 2.5 minutes (in ms)
 
             });
         });
@@ -350,116 +376,106 @@ $(document).ready(function() {
 })
 
 function recursiveVerification(i) {
-    var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
+
+    if (i == handles.length) {
+        $('#verifyBtn').attr('disabled', false);
+        $('#verifyBtn').attr('title', 'Verify');
+        $('#verifyBtn').attr('value', 'Verify');
+        return;
+    }
+
+    var handleElement = $('#handleLi' + handles[i].name.replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
     handleElement.text(' | processing...');
 
     $.ajax({
         url: 'http://codeforces.com/api/user.status',
         type: 'GET',
         data: {
-            jsonp: 'callback',
-            handle: handles[i],
+            handle: handles[i].name,
             from: 1,
             count: 1000
         },
-        dataType: 'JSONP',
-        jsonpCallback: 'callback',
         success: function(data) {
-            // Callback
-            var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
-            var currentHandle = handles[i];
-            var processedHandle = handles[i].replace(/\./g, '\\\\.');   // to account for dots in HTML id
+            setTimeout(function() {
+                // Callback
+                var handleElement = $('#handleLi' + handles[i].name.replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
+                var currentHandle = handles[i].name;
+                var processedHandle = handles[i].name.replace(/\./g, '\\\\.');   // to account for dots in HTML id
 
-            var callbackStatus = data.status;
+                // Status OK
+                var resultsArr = data.result;
+                var totalSolvedProblems = {};
+                var solvedTxtAdded;
+                var addedProblems;
 
-            if (callbackStatus != 'OK') {
+                for (var j = 0, solvedTxtAdded = false, addedProblems = []; j < resultsArr.length; j += 1) {
+                    var problemData = resultsArr[j].problem;
 
-                if (data.comment.match(/handle: User with handle/g).length > 0) {
-                    handleElement.text(' | user not found');
+                    for (var k = 0; k < problems.length; k += 1) {
+                        var problem = problems[k];
+                        var num = parseInt(problem.contestId, 10);
+                        var letter = problem.problemIndex;
+
+                        if (resultsArr[j].verdict == 'OK') {
+                            var key = parseInt(resultsArr[j].problem.contestId, 10) + resultsArr[j].problem.index;
+                            totalSolvedProblems[key] = true;
+                        }
+
+                        if (num == problemData.contestId && letter == problemData.index && resultsArr[j].verdict == 'OK') {
+                            // problem solved
+                            if ($.inArray(num.toString() + letter, addedProblems) > -1) {
+                                continue;
+                            }
+
+                            if (!solvedTxtAdded) {
+                                handleElement.text(' | solved: ' + num + letter);
+                            }
+                            else {
+                                handleElement.text(handleElement.text() + ', ' + num + letter);
+                            }
+                            addedProblems.push(num.toString() + letter);
+                            solvedTxtAdded = true;
+                        }
+                    }
+                }
+
+                if (!solvedTxtAdded) {
+                    // hasn't solved any of the listed problems
+                    handleElement.text(' | pass');
+                }
+
+                // Total solved
+                handleElement.text(handleElement.text() + ' - total solved: ' + Object.keys(totalSolvedProblems).length.toFixed(0) + ' problem(s)');
+
+                recursiveVerification(i + 1);
+                
+            }, 250);    // 250ms delay
+        },
+        error: function(jqXHR, type, status) {
+            setTimeout(function() {
+                if (jqXHR.responseJSON) {
+                    console.log('Error ' + jqXHR.status.toString() + ': ' + jqXHR.responseJSON.comment)
                 }
                 else {
-                    showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
+                    console.log('Error code ' + jqXHR.status.toString() + '. Make sure CORS is enabled');
                 }
 
-                // continue
-                if (i + 1 < handles.length) {
-                    setTimeout(recursiveVerification(i + 1), 200);  // 200ms / 5 requests per second max
-                    //(could decrease the delay further if you factor in the download time)
+                switch (jqXHR.status) {
+                    case 503:                // service temporarily unavailable
+                    case 429:                // too many requests
+                        // Try again
+                        recursiveVerification(i);
+                        break;
+                    case 400:                // bad request
+                        handleElement.text(' | user not found');
+                        recursiveVerification(i + 1);
+                        break;
+                    default:
+                        handleElement.text(' | error occured');
+                        recursiveVerification(i + 1);
                 }
-                if (i == handles.length - 1) {
-                    $('#verifyBtn').attr('disabled', false);
-                    $('#verifyBtn').attr('title', 'Verify');
-                    $('#verifyBtn').attr('value', 'Verify');
-                }
-                return;
-            }
 
-            // Status OK
-            var resultsArr = data.result;
-            var totalSolvedProblems = {};
-            var solvedTxtAdded;
-            var addedProblems;
-
-            for (var j = 0, solvedTxtAdded = false, addedProblems = []; j < resultsArr.length; j += 1) {
-                var problemData = resultsArr[j].problem;
-
-                for (var k = 0; k < problems.length; k += 1) {
-                    var problem = problems[k];
-                    var num = parseInt(problem.contestId, 10);
-                    var letter = problem.problemIndex;
-
-                    if (resultsArr[j].verdict == 'OK') {
-                        var key = parseInt(resultsArr[j].problem.contestId, 10) + resultsArr[j].problem.index;
-                        totalSolvedProblems[key] = true;
-                    }
-
-                    if (num == problemData.contestId && letter == problemData.index && resultsArr[j].verdict == 'OK') {
-                        // problem solved
-                        if ($.inArray(num.toString() + letter, addedProblems) > -1) {
-                            continue;
-                        }
-
-                        if (!solvedTxtAdded) {
-                            handleElement.text(' | solved: ' + num + letter);
-                        }
-                        else {
-                            handleElement.text(handleElement.text() + ', ' + num + letter);
-                        }
-                        addedProblems.push(num.toString() + letter);
-                        solvedTxtAdded = true;
-                    }
-                }
-            }
-
-            if (!solvedTxtAdded) {
-                // hasn't solved any of the listed problems
-                handleElement.text(' | pass');
-            }
-
-            // Total solved
-            handleElement.text(handleElement.text() + ' - total solved: ' + Object.keys(totalSolvedProblems).length.toFixed(0) + ' problem(s)');
-
-            if (i + 1 < handles.length) {
-                setTimeout(recursiveVerification(i + 1), 200);  // 200ms / 5 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
-            if (i == handles.length - 1) {
-                $('#verifyBtn').attr('disabled', false);
-                $('#verifyBtn').attr('title', 'Verify');
-                $('#verifyBtn').attr('value', 'Verify');
-            }
-        },
-        error: (jqXHR, status, error) => {
-            handleElement.text(' | error occured');
-            if (i == handles.length - 1) {
-                $('#verifyBtn').attr('disabled', false);
-                $('#verifyBtn').attr('title', 'Verify');
-                $('#verifyBtn').attr('value', 'Verify');
-            }
-            else if (i + 1 < handles.length) {
-                setTimeout(recursiveVerification(i + 1), 200);  // 200ms / 5 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
+            }, 250);    // 250ms delay
         }
     })
 }
@@ -471,7 +487,7 @@ function verify() { // verify button clicked
     }
 
     for (var i = 0; i < handles.length; i += 1) {
-        var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
+        var handleElement = $('#handleLi' + handles[i].name.replace(/(:|\.|\[|\])/g, "\\$1") + 'StatusSpan');
         handleElement.text('');
     }
 
@@ -480,7 +496,7 @@ function verify() { // verify button clicked
     $('#verifyBtn').attr('value', 'Please wait...');
     $('#verifyBtn').attr('disabled', true);
 
-    // verification recursion (delayed to 2 requests per second to prevent server error code 503 - too many requests)
+    // verification recursion (delayed to 4 requests per second to prevent server error code 503 (service temporarily unavailable) and 429 (too many requests))
     recursiveVerification(0);   // starting from handles[0]
 }
 
@@ -502,60 +518,78 @@ function recursiveProblemNameFetch(i, completionBlock) {
         url: 'http://codeforces.com/api/contest.standings',
         type: 'GET',
         data: {
-            jsonp: 'callback',
-            showUnofficial: false,
+            showUnofficial: false, /* relating to contestants */
             contestId: problem.contestId,
             from: 1,
             count: 1
         },
-        dataType: 'JSONP',
-        jsonpCallback: 'callback',
         success: function(data) {
-            var allProblems = data.result.problems;
-            for (var j = 0; j < allProblems.length; j++) {
-                if (allProblems[j].index == problem.problemIndex) {
-                    problems[i].problemName = allProblems[j].name;
-                    break;
-                }
-            }
-
-            if (!problems[i].problemName) {
-                var problemId = problem.contestId.toString() + problem.problemIndex;
-                showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
-                    if (!name.match(/[a-z]/i)) {
-                        // skipped
-                        recursiveProblemNameFetch(i + 1, completionBlock);
-                        return;
+            setTimeout(function() {
+                var allProblems = data.result.problems;
+                for (var j = 0; j < allProblems.length; j++) {
+                    if (allProblems[j].index == problem.problemIndex) {
+                        problems[i].problemName = allProblems[j].name;
+                        break;
                     }
+                }
 
-                    problems[i].problemName = name;
-                    recursiveProblemNameFetch(i + 1, completionBlock);
-                }, 'REMOVE', function() {
-                    deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
-                    recursiveProblemNameFetch(i, completionBlock);
-                });
-                return;
-            }
+                if (!problems[i].problemName) {
+                    var problemId = problem.contestId.toString() + problem.problemIndex;
+                    showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
+                        if (!name.match(/[a-z]/i)) {
+                            // skipped
+                            recursiveProblemNameFetch(i + 1, completionBlock);
+                            return;
+                        }
 
-
-            recursiveProblemNameFetch(i + 1, completionBlock);
-        },
-        error: function() {
-            var problemId = problem.contestId.toString() + problem.problemIndex;
-            showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
-                if (!name.match(/[a-z]/i)) {
-                    // skipped
-                    recursiveProblemNameFetch(i + 1, completionBlock);
+                        problems[i].problemName = name;
+                        recursiveProblemNameFetch(i + 1, completionBlock);
+                    }, 'REMOVE', function() {
+                        deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
+                        recursiveProblemNameFetch(i, completionBlock);
+                    });
                     return;
                 }
 
-                problems[i].problemName = name;
                 recursiveProblemNameFetch(i + 1, completionBlock);
-            }, 'REMOVE', function() {
-                deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
-                recursiveProblemNameFetch(i, completionBlock);
-            });
-        }    
+            }, 250);    // 250ms delay
+        },
+        error: function(jqXHR, type, status) {
+            setTimeout(function() {
+                if (jqXHR.responseJSON) {
+                    console.log('Error ' + jqXHR.status.toString() + ': ' + jqXHR.responseJSON.comment)
+                }
+                else {
+                    console.log('Error code ' + jqXHR.status.toString() + '. Make sure CORS is enabled');
+                }
+
+                switch (jqXHR.status) {
+                    case 503:                // service temporarily unavailable
+                    case 429:                // too many requests
+                        // Try again
+                        recursiveProblemNameFetch(i, completionBlock);
+                        break;
+                    case 400:                // bad request
+                    default:
+                        // problem not found
+                        var problemId = problem.contestId.toString() + problem.problemIndex;
+                        showInputToast('an error occurred while retrieving ' + problemId + '\'s name -', 'Insert Problem Name', function(name) {
+                            if (!name.match(/[a-z]/i)) {
+                                // skipped
+                                recursiveProblemNameFetch(i + 1, completionBlock);
+                                return;
+                            }
+
+                            problems[i].problemName = name;
+                            recursiveProblemNameFetch(i + 1, completionBlock)
+                        }, 'REMOVE', function() {
+                            deleteBtnClicked('problemLi' + problem.contestId.toString() + problem.problemIndex, 'problemLi' + problem.contestId.toString() + problem.problemIndex);
+                            recursiveProblemNameFetch(i, completionBlock);
+                        });
+                }
+
+            }, 250);    // 250ms delay
+        }
     });
 }
 
@@ -565,37 +599,88 @@ function recursiveHandlesVerification(i, completionBlock) {
         return;
     }
 
+    if (handles[i].valid) {
+        // already verified
+        recursiveHandlesVerification(i + 1, completionBlock);
+        return;
+    }
+    else if (handles[i].valid == false) {
+        // verification result = does not exist
+        showConfirmationToast('user "' + handles[i].name + '" was not found! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
+            var processedHandle = handles[i].name.replace(/\./g, '\\\\.');
+            deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i].name);
+            recursiveHandlesVerification(i, completionBlock);
+        }, function() {
+            recursiveHandlesVerification(i + 1, completionBlock);
+        });
+        return;
+    }
+
     $.ajax({
         url: 'http://codeforces.com/api/user.info',
         type: 'GET',
+        dataType: 'json',
         data: {
-            jsonp: 'callback',
-            'handles': handles[i]
+            'handles': handles[i].name
         },
-        dataType: 'JSONP',
-        jsonpCallback: 'callback',
         success: function(data) {
-            if (data.status == 'OK') {
-                recursiveHandlesVerification(i + 1, completionBlock);
-                return;
-            }
+            setTimeout(function() {
+                if (data.status == 'OK') {
+                    handles[i].valid = true;
+                    recursiveHandlesVerification(i + 1, completionBlock);
+                    return;
+                }
 
-            showConfirmationToast('user "' + handles[i] + '" does not exist! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
-                var processedHandle = handles[i].replace(/\./g, '\\\\.');
-                deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i]);
-                recursiveHandlesVerification(i, completionBlock);
-            }, function() {
-                recursiveHandlesVerification(i + 1, completionBlock);
-            });
+                handles[i].valid = false;
+
+                showConfirmationToast('user "' + handles[i].name + '" was not found! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
+                    var processedHandle = handles[i].name.replace(/\./g, '\\\\.');
+                    deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i].name);
+                    recursiveHandlesVerification(i, completionBlock);
+                }, function() {
+                    recursiveHandlesVerification(i + 1, completionBlock);
+                });
+
+            }, 250);    // 250ms delay
         },
-        error: function() {
-            showConfirmationToast('user "' + handles[i] + '" does not exist! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
-                var processedHandle = handles[i].replace(/\./g, '\\\\.');
-                deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i]);
-                recursiveHandlesVerification(i, completionBlock);
-            }, function() {
-                recursiveHandlesVerification(i + 1, completionBlock);
-            });
+        error: function(jqXHR, type, status) {
+            setTimeout(function() {
+                if (jqXHR.responseJSON) {
+                    console.log('Error ' + jqXHR.status.toString() + ': ' + jqXHR.responseJSON.comment)
+                }
+                else {
+                    console.log('Error code ' + jqXHR.status.toString() + '. Make sure CORS is enabled');
+                }
+
+                handles[i].valid = false;
+
+                switch (jqXHR.status) {
+                    case 503:                // service temporarily unavailable
+                    case 429:                // too many requests
+                        // Try again
+                        recursiveHandlesVerification(i, completionBlock);
+                        break;
+                    case 400:                // bad request
+                        // User not found
+                        showConfirmationToast('user "' + handles[i].name + '" was not found! <br><br>Would you like to remove them?', 'YES', 'NO', function() {
+                            var processedHandle = handles[i].name.replace(/\./g, '\\\\.');
+                            deleteBtnClicked('handleLi' + processedHandle, 'handleLi' +  handles[i].name);
+                            recursiveHandlesVerification(i, completionBlock);
+                        }, function() {
+                            recursiveHandlesVerification(i + 1, completionBlock);
+                        });
+                        break;
+                    default:
+                        if (jqXHR.responseJSON) {
+                            showToast('server responded with error msg: \n' + jqXHR.responseJSON.comment, 'error', 'short');
+                        }
+                        else {
+                            showToast('server responded with error code ' + jqXHR.status.toString() + '. Please make sure CORS is enabled', 'error', 'long');
+                        }
+                        recursiveHandlesVerification(i + 1, completionBlock);
+                }
+                
+            }, 250);    // 250ms delay
         }
     });
 }

@@ -1,9 +1,12 @@
 // JavaScript Document
 
+var lightsOn = false;
+
 $(window).ready(function() {
     // Action button listeners
     $('.action-button').on('click', function(e){
         $('.panel').toggleClass('expanded');
+        $('.hotkeys-panel').toggleClass('expanded');
         $('.fab-wrapper').toggleClass('expanded');
         $('.action-button').blur();
         e.stopPropagation();
@@ -19,6 +22,10 @@ $(window).ready(function() {
         e.stopPropagation();
     });
 
+    $('.hotkeys-panel').on('click', function(e) {
+        e.stopPropagation();
+    })
+
     $('.panel-element-body').on('click', function(e) {
         e.stopPropagation();
     });
@@ -26,6 +33,7 @@ $(window).ready(function() {
     $(document).click(function() {
         $('.fab-wrapper').removeClass('expanded');
         $('.panel').removeClass('expanded');
+        $('.hotkeys-panel').removeClass('expanded');
         $('.action-button').blur();
 
         $('.panel-element').each(function(i, domObj) {
@@ -39,52 +47,50 @@ $(window).ready(function() {
 
         // toggle tools button
         if (key == 116 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 't'
-            $('.fab-wrapper').toggle();
-            $('.panel-element').each(function(i, domObj) {
-                $(this).removeClass('selected');
-            });
+            toggleTools();
         }
         // toggle contest table dragging
         else if (key == 100 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'd'
-            tableIsDraggable = !tableIsDraggable;
+            toggleTableDragging();
         }
         // toggle fullscreen
         else if (key == 102 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'f'
-            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
+            toggleFullscreen();
         }
         // toggle sound
         else if (key == 109 && ($(':focus')[0] == undefined || $(':focus')[0].tagName != 'INPUT')) { // 'm'
-            if ($('#finishSoundAudio')[0].volume > 0.9) {
-                // mute
-                $('#finishSoundAudio')[0].volume = 0;
-                showToast('finishing sound muted', 'neutral', 'short');
-            }
-            else {
-                // unmute
-                $('#finishSoundAudio')[0].volume = 1.0;
-                showToast('finishing sound unmuted', 'neutral', 'short');
-            }
+            toggleSound();
         }
+    });
+
+    // Hotkeys activation by click
+    $('#fullscreenHotkeyElement').on('click', function() {
+        if ($(this).parent().hasClass('disabled')) {
+            return;
+        }
+        toggleFullscreen();
+    });
+
+    $('#toolsHotkeyElement').on('click', function() {
+        if ($(this).parent().hasClass('disabled')) {
+            return;   
+        }
+        toggleTools();
+    });
+
+    $('#draggingHotkeyElement').on('click', function() {
+        if ($(this).parent().hasClass('disabled')) {
+            showToast('Contest table dragging can only be toggled when a contest is running', 'neutral', 'short');
+            return;
+        }
+        toggleTableDragging();
+    });
+
+    $('#soundHotkeyElement').on('click', function() {
+        if ($(this).parent().hasClass('disabled')) {
+            return;   
+        }
+        toggleSound();
     });
 
     $('.panel-button').on('click', function(e){
@@ -98,7 +104,7 @@ $(window).ready(function() {
         $(this.closest('.panel-element-body')).toggle();
     });
 
-    // Panel button listeners
+    // Panel button listeners //
     $('#documentationBtn').on('click', function(e) {
         var url = 'https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/README.md#acm-scoreboard'
         var success = window.open(url, '_blank');
@@ -106,6 +112,22 @@ $(window).ready(function() {
             showToast('the request to open a new tab was blocked by your browser. Check the console for details', 'error', 'short');
             console.log('Add this domain to your Ad-Block\'s whitelist or visit the documentation manually (' + url +')');
         }
+
+        $(this).blur();
+    });
+
+    $('#lightsBtn').on('click', function(e) {
+        lightsOn = !lightsOn;
+        $(this).next().find('.panel-element-title').text(lightsOn ? 'Lights On' : 'Lights Off');
+        $(this).parent().toggleClass('activated');
+
+        $('body').toggleClass('lights-on');
+        document.cookie = 'lights' + '=' + lightsOn;
+
+        // img crossfade
+        $('#codeforcesImgLogo').fadeTo(150, 0.5, function() {
+            $('#codeforcesImgLogo').attr('src', 'img/codeforceslogo-' + (lightsOn ? 'b' : 'w') + '.png');
+        }).fadeTo(150, 1);
 
         $(this).blur();
     });
@@ -248,8 +270,10 @@ $(window).ready(function() {
             return;
         }
 
-        if (dataIsBeingRetrieved)
+        if (dataIsBeingRetrieved) {
+            showToast('scores are already being updated', 'neutral', 'short');
             return;
+        }
 
         manualUpdate();
 
@@ -261,7 +285,6 @@ $(window).ready(function() {
     });
 
 });
-
 
 function loadContestSetup(compressedString) {
     var uncompressedString = lzw_decode(compressedString);
@@ -281,7 +304,14 @@ function loadContestSetup(compressedString) {
 
     // handles insertion
     jsonObj.handles.forEach(function(handle) {
-        addUser(handle);
+        if (handle.name) {
+            // v1.5+
+            addUser(handle.name, handle.valid);
+        }
+        else {
+            // backwards compatibility
+            addUser(handle);
+        }
     });
 
     // problems insertion
@@ -329,83 +359,93 @@ function compressSetupData() {
 }
 
 function recursiveUserDetailsRetrieval(i, completionBlock) {
+    if (i >= handles.length) {
+        completionBlock();
+        return;
+    }
     $.ajax({
         url: 'http://codeforces.com/api/user.status',
         type: 'GET',
         data: {
-            jsonp: 'callback',
-            handle: handles[i],
+            handle: handles[i].name,
             from: 1,
             count: 1000
         },
-        dataType: 'JSONP',
-        jsonpCallback: 'callback',
         success: function(data) {
-            // Callback
-            var handleElement = $('#handleLi' + handles[i].replace(/(:|\.|\[|\])/g, "\\$1") + 'Span');
-            var currentHandle = handles[i];
-            var processedHandle = handles[i].replace(/\./g, '\\\\.');   // to account for dots in HTML id
+            setTimeout(function() {
+                // Callback
+                var handleElement = $('#handleLi' + handles[i].name.replace(/(:|\.|\[|\])/g, "\\$1") + 'Span');
+                var currentHandle = handles[i].name;
+                var processedHandle = handles[i].name.replace(/\./g, '\\\\.');   // to account for dots in HTML id
 
-            var callbackStatus = data.status;
+                var callbackStatus = data.status;
 
-            if (callbackStatus != 'OK') {
+                if (callbackStatus != 'OK') {
 
-                detailedUserData.push({handle: currentHandle, errorMsg: 'An error occured while retrieving this user\'s data'});   
-                if (data.comment.match(/handle: User with handle/g).length > 0) {
-                    showToast('user "' + handles[i] + '" not found', 'error', 'short');
+                    detailedUserData.push({handle: currentHandle, errorMsg: 'An error occured while retrieving this user\'s data'});   
+                    if (data.comment.match(/handle: User with handle/g).length > 0) {
+                        showToast('user "' + handles[i].name + '" not found', 'error', 'short');
+                    }
+                    else {
+                        showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
+                    }
+
+                    // continue
+                    recursiveUserDetailsRetrieval(i + 1, completionBlock);
+                    
+                    return;
+                }
+
+                // Status OK
+                var resultsArr = data.result;
+
+                detailedUserData.push({handle: currentHandle});
+                detailedUserData[detailedUserData.length - 1].data = [];
+                detailedUserData[detailedUserData.length - 1].problems = [];
+
+                for (var j = 0; j < resultsArr.length; j += 1) {
+                    var problemData = resultsArr[j].problem;
+
+                    // detailedUserData problems pushing
+                    detailedUserData[detailedUserData.length - 1].problems.push({
+                        id: parseInt(resultsArr[j].problem.contestId, 10) + resultsArr[j].problem.index,
+                        submissionTime: resultsArr[j].creationTimeSeconds * 1000,
+                        submissionTimeFormatted: moment((new Date(resultsArr[j].creationTimeSeconds * 1000))).format('dddd, MMMM Do YYYY'),
+                        verdict: resultsArr[j].verdict,
+                        verdictFormatted: (resultsArr[j].verdict == 'OK' ? 'Passed' : 'Failed'),
+                        submissionId: resultsArr[j].id
+                    });
+                }
+
+                recursiveUserDetailsRetrieval(i + 1, completionBlock);
+            }, 250);    // 250ms delay
+        },
+        error: function(jqXHR, type, status) {
+            setTimeout(function() {
+                if (jqXHR.responseJSON) {
+                    console.log('Error ' + jqXHR.status.toString() + ': ' + jqXHR.responseJSON.comment)
                 }
                 else {
-                    showToast('server responded with error msg: \n[' + data.comment + ']', 'error', 'short');
+                    console.log('Error code ' + jqXHR.status.toString() + '. Make sure CORS is enabled');
                 }
 
-                // continue
-                if (i + 1 < handles.length) {
-                    setTimeout(recursiveUserDetailsRetrieval(i + 1, completionBlock), 200);  // 200ms / 5 requests per second max
-                    //(could decrease the delay further if you factor in the download time)
+                switch (jqXHR.status) {
+                    case 503:                // service temporarily unavailable
+                    case 429:                // too many requests
+                        // Try again
+                        recursiveUserDetailsRetrieval(i, completionBlock);
+                        break;
+                    case 400:                // bad request
+                        detailedUserData.push({handle: handles[i].name, errorMsg: 'This user does not exist'});
+                        recursiveUserDetailsRetrieval(i + 1, completionBlock);
+                        break;
+                    default:
+                        detailedUserData.push({handle: handles[i].name, errorMsg: 'An error has occured while retrieving this user\'s data'});
+                        recursiveUserDetailsRetrieval(i + 1, completionBlock);
                 }
-                if (i == handles.length - 1) {
-                    completionBlock();
-                }
-                return;
-            }
-
-            // Status OK
-            var resultsArr = data.result;
-
-            detailedUserData.push({handle: currentHandle});
-            detailedUserData[detailedUserData.length - 1].data = [];
-            detailedUserData[detailedUserData.length - 1].problems = [];
-
-            for (var j = 0; j < resultsArr.length; j += 1) {
-                var problemData = resultsArr[j].problem;
-
-                // detailedUserData problems pushing
-                detailedUserData[detailedUserData.length - 1].problems.push({
-                    id: parseInt(resultsArr[j].problem.contestId, 10) + resultsArr[j].problem.index,
-                    submissionTime: resultsArr[j].creationTimeSeconds * 1000,
-                    submissionTimeFormatted: moment((new Date(resultsArr[j].creationTimeSeconds * 1000))).format('dddd, MMMM Do YYYY'),
-                    verdict: resultsArr[j].verdict,
-                    verdictFormatted: (resultsArr[j].verdict == 'OK' ? 'Passed' : 'Failed'),
-                    submissionId: resultsArr[j].id
-                });
-            }
-            if (i + 1 < handles.length) {
-                setTimeout(recursiveUserDetailsRetrieval(i + 1, completionBlock), 200);  // 200ms / 5 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
-            if (i == handles.length - 1) {
-                completionBlock();
-            }
-        },
-        error: (jqXHR, status, error) => {
-            detailedUserData.push({handle: handles[i], errorMsg: 'An error has occured while retrieving this user\'s data'});
-            if (i == handles.length - 1) {
-                completionBlock();
-            }
-            else if (i + 1 < handles.length) {
-                setTimeout(recursiveUserDetailsRetrieval(i + 1, completionBlock), 200);  // 200ms / 5 requests per second max
-                //(could decrease the delay further if you factor in the download time)
-            }
+                
+            }, 250);    // 250ms delay
+            
         }
     })
 }
@@ -419,7 +459,11 @@ function getSubmissionDetails() {
         return;
     }
 
-    showToast('please wait...', 'neutral', 'long');
+    showToast('please wait... (check the developer console)', 'neutral', 'long');
+
+    console.log('%cRetrieving user data. Please wait...', 'color: Grey;');
+    console.log('%cThis may take a while...', 'color: DarkGrey; font-style: italic;');
+
     userDataRetrievalInProcess = true;
     detailedUserData.splice(0, detailedUserData.length);    // clear array
 
@@ -630,9 +674,91 @@ function addSubtractContestTime(time) {
     });
 }
 
+// HOTKEYS //
 
+function draggableDiv(e) {
+    if (!tableIsDraggable) {
+        return;
+    }
 
+    window.my_dragging = {};
+    my_dragging.pageX0 = e.pageX;
+    my_dragging.pageY0 = e.pageY;
+    my_dragging.elem = this;
+    my_dragging.offset0 = $(this).offset();
+    function handle_dragging(e){
+        var left = my_dragging.offset0.left + (e.pageX - my_dragging.pageX0);
+        var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
+        $(my_dragging.elem).offset({top: top, left: left});
+    }
+    function handle_mouseup(e) {
+        $('body').off('mousemove', handle_dragging).off('mouseup', handle_mouseup);
+    }
+    $('body').on('mouseup', handle_mouseup).on('mousemove', handle_dragging);
+}
 
+function toggleFullscreen() {
+    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) {
+            document.documentElement.msRequestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+        $('#fullscreenHotkeyElement').find('.hotkey-description').text('Fullscreen On');
+    } 
+    else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+        $('#fullscreenHotkeyElement').find('.hotkey-description').text('Fullscreen Off');
+    }
+}
+
+function toggleSound() {
+    if ($('#finishSoundAudio')[0].volume > 0.9) {
+        // mute
+        $('#finishSoundAudio')[0].volume = 0;
+        //showToast('finishing sound muted', 'neutral', 'short');
+
+        $('#soundHotkeyElement').find('.hotkey-description').text('Sound Muted');
+    }
+    else {
+        // unmute
+        $('#finishSoundAudio')[0].volume = 1.0;
+        //showToast('finishing sound unmuted', 'neutral', 'short');
+
+        $('#soundHotkeyElement').find('.hotkey-description').text('Sound Unmuted');
+    }
+}
+
+function toggleTools() {
+    $('.fab-wrapper').toggle();
+    $('.hotkeys-panel').toggle();
+    $('.panel-element').each(function(i, domObj) {
+        $(this).removeClass('selected');
+    });
+
+    $('#toolsHotkeyElement').find('.hotkey-description').text('Tools ' + ($('.hotkeys-panel').is( ":visible" ) ? 'Visible' : 'Invisible'));
+}
+
+function toggleTableDragging() {
+    if (!contestStarted) {
+        showToast('Contest table dragging can only be toggled when a contest is running', 'neutral', 'short');
+        return;
+    }
+    tableIsDraggable = !tableIsDraggable;
+    $('#draggingHotkeyElement').find('.hotkey-description').text('Contest Table Dragging ' + (tableIsDraggable ? 'On' : 'Off'));
+}
 
 
 

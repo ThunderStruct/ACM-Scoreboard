@@ -13,10 +13,10 @@
 }
 .toast-message a,
 .toast-message label {
-  color: #FFFFFF;
+  color: var(--tertiary-foreground);
 }
 .toast-message a:hover {
-  color: #CCCCCC;
+  color: var(--contest-foreground);
   text-decoration: none;
 }
 .toast-close-button {
@@ -25,7 +25,7 @@
   order: 2;
   font-size: 20px;
   font-weight: bold;
-  color: #FFFFFF;
+  color: var(--tertiary-foreground);
   cursor: pointer;
   -webkit-text-shadow: 0 1px 0 rgba(0, 0, 0, 0.26);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.26);
@@ -36,7 +36,7 @@
 }
 .toast-close-button:hover,
 .toast-close-button:focus {
-  color: #000000;
+  color: var(--secondary-background);
   text-decoration: none;
   opacity: 0.4;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=40);
@@ -131,7 +131,7 @@ button.toast-close-button {
   -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
   -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-  color: #FFFFFF;
+  color: var(--tertiary-foreground);
   opacity: 0.9;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=90);
   filter: alpha(opacity=90);
@@ -167,13 +167,13 @@ button.toast-close-button {
   background-color: #030303;
 }
 .toast-success {
-  background-color: #27ae60;
+  background-color: var(--primary-active);
 }
 .toast-error {
-  background-color: #c0392b;
+  background-color: var(--primary-destructive);
 }
 .toast-info {
-  background-color: #2980b9;
+  background-color: var(--primary-inactive);
 }
 .toast-warning {
   background-color: #F89406;

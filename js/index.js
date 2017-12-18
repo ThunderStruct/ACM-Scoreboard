@@ -22,7 +22,7 @@
 -Happy ACMing-
 */
 
-var handles = [];   // array of strings containing the handle names
+var handles = [];   // array of {name: ThunderStruct, valid: true}
 var problems = [];  // array of {contestId: 4, problemName: Watermelon, problemIndex: A, problemScore: 200, problemColor: Green} objects
 var detailedUserData = [];  // used for getSubmissionDetails() - array of {handle: ThunderStruct, data: [{Date: 'Wednesday, November 23rd 2017', 'Total Submissions': 20, 'Total Correct Submissions': 13}], problems: [{id: '4A', submissionTime: 1509919933612, submissionTimeFormatted: 'Wednesday, November 23rd 2017', verdict: 'OK', verdictFormatted: 'Passed'}]} objects
 // Debugging samples
@@ -74,7 +74,8 @@ $(window).ready(function() {
         picker: true,
         pickerDelay: 100,
         theme: 'fontawesome',
-        attachToInput: $('#problemColor')
+        attachToInput: $('#problemColor'),
+        displayDirection: 'top'
     });
 
     $('select[name="colorpicker"]').on('change', function() {
@@ -122,7 +123,7 @@ $(window).ready(function() {
 
     // init actions (button listeners)
     $('#addUserBtn')[0].onclick = function() { addUser('-1'); };
-    $('#addProblemBtn')[0].onclick = addProblem;
+    $('#addProblemBtn')[0].onclick = function(e) { addProblem(); }; // wrapper function to prevent the event from being sent to addProblem()
     $('#verifyBtn')[0].onclick = verify;
     $('#addUserFileBtn')[0].onclick = chooseAFile;
 
@@ -138,7 +139,21 @@ $(window).ready(function() {
 
     // pace listener
     Pace.on('done', function() {
+        // load light setting
+        var cookie = document.cookie.match('(^|;) ?' + 'lights' + '=([^;]*)(;|$)');
+        lightsOn = cookie ? (cookie[2] == 'true' ? true : false) : false;
+
+        if (lightsOn) {
+            $('#lightsBtn').next().find('.panel-element-title').text(lightsOn ? 'Lights On' : 'Lights Off');
+            $('#lightsBtn').parent().toggleClass('activated');
+            $('body').toggleClass('lights-on');
+        }
+
         $('.loading-page').fadeOut();
+
+        Pace.options.ajax = false;
+
+
     });
 
     // Toast init
@@ -146,6 +161,18 @@ $(window).ready(function() {
     toastr.options.closeMethod = 'fadeOut';
     toastr.options.closeEasing = 'swing';
     toastr.options.closeDuration = 300;
+
+    // Version link
+    $('.version-label').on('click', function() {
+        var url = 'https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/CHANGELOG.md#150---2017-12-18'
+        var success = window.open(url, '_blank');
+        if (!success) {
+            showToast('the request to open a new tab was blocked by your browser. Check the console for details', 'error', 'short');
+            console.log('Add this domain to your Ad-Block\'s whitelist or visit the changelog manually (' + url +')');
+        }
+
+        $(this).blur();
+    });
 
 });
 
@@ -173,8 +200,8 @@ function showToast(text, type, duration, onHide) {
 
 function showConfirmationToast(text, acceptBtnText, cancelBtnText, acceptCallback, cancelCallback) {
     var msg = text.charAt(0).toUpperCase() + text.slice(1);
-    var html = msg + '&nbsp<button id="toastrAcceptBtn" class="setup-submission-btn" style="display: inline-block; background-color: #27ae60; font-size: 10px; width: 70px; height: 25px;">' + acceptBtnText + '</button>&nbsp' +
-    '<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + cancelBtnText + '</button>';
+    var html = msg + '&nbsp<button id="toastrAcceptBtn" class="setup-submission-btn" style="color: #ecf0f1; display: inline-block; background-color: var(--primary-active); font-size: 10px; width: 70px; height: 25px;">' + acceptBtnText + '</button>&nbsp' +
+    '<button id="toastrCancelBtn" class="setup-submission-btn" style="color: #ecf0f1; display: inline-block; background-color: var(--secondary-destructive); font-size: 10px; width: 70px; height: 25px;">' + cancelBtnText + '</button>';
     
     toastr.clear(); // clear current toastr to show next
     resetToastrOptions();
@@ -208,7 +235,7 @@ function showInputToast(text, placeholder, callback, declineText, declineCallbac
 
     if (declineText) {
         html = html + 
-        '&nbsp&nbsp or &nbsp<button id="toastrCancelBtn" class="setup-submission-btn" style="display: inline-block; background-color: #e74c3c; font-size: 10px; width: 70px; height: 25px;">' + declineText + '</button>';
+        '&nbsp&nbsp or &nbsp<button id="toastrCancelBtn" class="setup-submission-btn" style="color: #ecf0f1; display: inline-block; background-color: var(--secondary-destructive); font-size: 10px; width: 70px; height: 25px;">' + declineText + '</button>';
     }
 
     toastr.clear(); // clear current toastr to show next
@@ -248,7 +275,7 @@ function resetToastrOptions() {
 
 // minified HTML contest view --- used to create the table and its wrapper div along with other material
 // Used instead of jquery's load method + external view to minimize ajax load time
-var HTML_CONTEST_TABLE = '<div class="contest-wrapper" id="scoreboardWrapper" style="margin-top: -40px"><div calss="contest-info-wrappe" align="center"><label id="countdownTimerLbl" class="setup-lbl" title="Time remaining">00:00:00</label><div class="legend-table"></div></div><div class="contest-table" id="scoreboardTable" align="center"><div class="contest-row header" id="scoreboardTableHeader"></div></div><br><div align="center"><label id="lastUpdateLbl" class="setup-lbl">contest has not started yet</label><br><label id="blindTimeIndicator" class="setup-lbl" style="display: none; opacity: 0.25;" title="Score auto-update disabled">BLIND TIME</label></div></div>'
+var HTML_CONTEST_TABLE = '<div class="contest-wrapper" id="scoreboardWrapper" style="margin-top: -40px"><div align="center"><label id="countdownTimerLbl" class="setup-lbl" title="Time remaining">00:00:00</label><div class="legend-table"></div></div><table class="contest-table" id="scoreboardTable" align="center"><tr class="contest-row header" id="scoreboardTableHeader"></tr></table><br><div align="center"><label id="lastUpdateLbl" class="setup-lbl">contest has not started yet</label><br><label id="blindTimeIndicator" class="setup-lbl" style="display: none; opacity: 0.25;" title="Score auto-update disabled">BLIND TIME</label></div></div>'
 
 
 
