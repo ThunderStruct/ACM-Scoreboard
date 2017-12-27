@@ -3,8 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+------------------------
+
 ## 1.5.0 - 2017-12-18
-### Added
+-----
+#### Added
   - Major stability improvements and better error handling
     - Error logging
     - Self-handling 429 and 503 errors by auto-retrying the requests
@@ -17,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - Pre-validated user handles (copied from running contests) will be skipped in the
   pre-contest validation process
 
-### Changed
+#### Changed
   - Minor design inconsistency in the color picker palette
   - Assigning problem colors is now optional with no forced default color
   - Ajax requests pattern for better maintainability
@@ -26,20 +29,21 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - Setup screen minor design changes
   - Stylesheets restructuring and numerous improvements
 
-### Fixed
+#### Fixed
   - Added a slight delay between ajax calls to prevent server 503/429 responses during 
   pre-contest preparations
   - Handles' insertion now validates for case-insensitive duplicates and invalid special
   characters
 
-### Removed
+#### Removed
   - Cross-domain support to allow error response-parsing (all JSONP requests have been changed 
   to JSON, requiring a CORS-enabled browser or an HTTP non-local server to abide by the 
   same-origin policy)
 
 
 ## 1.4.0 - 2017-12-13
-### Added
+-----
+#### Added
   - Auto problem name fetching during the pre-contest preparations
   - A new `Problem Color` setup field to specify a custom color for each problem
   - More helpful hotkeys
@@ -48,27 +52,28 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   contest start
   - Invalid problem IDs will also trigger sequential prompts to remove problem/add problem name
 
-### Changed
+#### Changed
   - Manually retrieving scores during blind-time will now log them in the console instead
   of repopulating the contest table
   - Multiple design improvements
   - Improved variable naming for better readability
 
-### Fixed
+#### Fixed
   - Confirmation toasts were not properly dismissed
   - A bug that caused some of the confirmation toasts' attributes to persist with other
   toasts
 
-### Removed
+#### Removed
   - The problem name field in the setup screen as problem names are now automatically
   obtained
 
 
 ## 1.3.1 - 2017-12-10
-### Changed
+-----
+#### Changed
   - Enhanced the confirmation toasts
 
-### Fixed
+#### Fixed
   - An inconsistency resulting in not including any time modifications taking place
   during contests in the copied setup encoded string
   - Clicking the "START CONTEST" button repetitively was still causing issues due to a
@@ -77,18 +82,19 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   the contest table
 
 ## 1.3.0 - 2017-12-08
-### Added
+-----
+#### Added
   - A shortcut button to enable/disable contest table dragging
   - A tool button to add/subtract time from the duration of a running contest
   - Support for contest durations more than or equal to 24 hours
   - Confirmation toast notifications for critical changes in the contest
   - Hotkeys for regularly-used tools
 
-### Changed
+#### Changed
   - Significantly enhanced performance by decreasing dependencies
   - Design changes
 
-### Fixes
+#### Fixes
   - A bug that caused multiple contest tables to appear if the "START CONTEST" button
   is clicked repetitively
   - A bug that was caused by not accounting for empty values inserted into the cancelled 
@@ -96,59 +102,66 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.2.2 - 2017-12-04
-### Fixed
+-----
+#### Fixed
   - Handles being redundantly displayed when an error occurs during verification
   - The manual score-update button spinning erroneous interruption upon hover
 
 
 ## 1.2.1 - 2017-12-02
-### Fixed
+-----
+#### Fixed
   - A bug that prevented loading user handles from a file
 
 
 ## 1.2.0 - 2017-11-29
-### Added
+-----
+#### Added
   - Removing a submission ID from the cancelled submissions list
   
-### Changed
+#### Changed
   - The added handles and problems lists' design
   - Title redesign
 
-### Fixed
+#### Fixed
   - A bug caused by not accounting for invalid submission IDs when cancelling a 
   submission
 
 
 ## 1.1.1 - 2017-11-28
-### Added
+-----
+#### Added
   - Alert prompt on page-unload during a contest to prevent accidental page-refresh
 
 
 ## 1.1.0 - 2017-11-28
-### Added
+-----
+#### Added
   - A legend over the scoreboard to describe the color-coding scheme
   
-### Changed
+#### Changed
   - The copy-contest tool now copies cancelled submissions
   
-### Fixed
+#### Fixed
   - A bug that resulted in an erroneous warning when cancelling a submission
 
 ## 1.0.1 - 2017-11-13
-### Added
+-----
+#### Added
   - An extra button to the tools floating menu to refer to the website's 
   documentation
 
-### Changed
+#### Changed
   - Some of the toasts' wording for better clarity
   
-### Fixed
+#### Fixed
   - A tiny bug that caused detailed report logging to be interrupted if one of the 
   handles are invalid or a server error occured
 
 
 ## 1.0.0 - 2017-11-12
-### Added
+-----
+#### Added
 - `cancelSubmission(id)`  method to rule out a submission (using its submission ID) 
 from the scoring process
 - The ability to copy the contest's "setup" (an encoded string of all handles, 
@@ -169,7 +182,7 @@ of whether the contest started or not)
 - Loading screen to show progress until the website is almost fully loaded (all ajax 
 calls, documents, and elements)
   
-### Changed
+#### Changed
 - Linted the entire project and made the code more consistent for better readability
 - Design makeover!
   - Color palette
@@ -181,19 +194,19 @@ calls, documents, and elements)
 - Automatic score updating interval changed from once every 10 minutes to once every 
 2.5 minutes
   
-### Removed
+#### Removed
 - The "Toggle fullscreen" feature that was under the scoreboard
 
-### Fixed
+#### Fixed
 - A bug that resulted in the wrong last submission to be displayed in `getLastSubmission()`
 - Contest duration bug that resulted in erroneous time calculation
 
-### Deprecated
+#### Deprecated
 - The fullscreen toggling method in `contest.js`
 
 
 ## 0.X.X
-
+-----
 All prerelease changes are not logged
 
 
