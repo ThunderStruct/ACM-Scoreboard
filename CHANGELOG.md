@@ -6,7 +6,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ------------------------
 
 ## 1.5.0 - 2017-12-18
------
 #### Added
   - Major stability improvements and better error handling
     - Error logging
@@ -42,7 +41,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.4.0 - 2017-12-13
------
 #### Added
   - Auto problem name fetching during the pre-contest preparations
   - A new `Problem Color` setup field to specify a custom color for each problem
@@ -69,7 +67,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.3.1 - 2017-12-10
------
 #### Changed
   - Enhanced the confirmation toasts
 
@@ -82,7 +79,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   the contest table
 
 ## 1.3.0 - 2017-12-08
------
 #### Added
   - A shortcut button to enable/disable contest table dragging
   - A tool button to add/subtract time from the duration of a running contest
@@ -102,20 +98,17 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.2.2 - 2017-12-04
------
 #### Fixed
   - Handles being redundantly displayed when an error occurs during verification
   - The manual score-update button spinning erroneous interruption upon hover
 
 
 ## 1.2.1 - 2017-12-02
------
 #### Fixed
   - A bug that prevented loading user handles from a file
 
 
 ## 1.2.0 - 2017-11-29
------
 #### Added
   - Removing a submission ID from the cancelled submissions list
   
@@ -129,13 +122,11 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.1.1 - 2017-11-28
------
 #### Added
   - Alert prompt on page-unload during a contest to prevent accidental page-refresh
 
 
 ## 1.1.0 - 2017-11-28
------
 #### Added
   - A legend over the scoreboard to describe the color-coding scheme
   
@@ -146,7 +137,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
   - A bug that resulted in an erroneous warning when cancelling a submission
 
 ## 1.0.1 - 2017-11-13
------
 #### Added
   - An extra button to the tools floating menu to refer to the website's 
   documentation
@@ -160,7 +150,6 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 
 ## 1.0.0 - 2017-11-12
------
 #### Added
 - `cancelSubmission(id)`  method to rule out a submission (using its submission ID) 
 from the scoring process
@@ -206,7 +195,6 @@ calls, documents, and elements)
 
 
 ## 0.X.X
------
 All prerelease changes are not logged
 
 

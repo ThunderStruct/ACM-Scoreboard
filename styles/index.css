@@ -128,6 +128,7 @@ hr {
 	color: var(--secondary-destructive);
 	word-spacing: 7px;
 	line-height: 15px;
+	margin-left: 10px;
 }
 
 #headerDiv .version-label {
