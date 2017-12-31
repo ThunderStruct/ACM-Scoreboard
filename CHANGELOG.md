@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ------------------------
 
+## 1.5.1 - 2017-12-31
+#### Changed
+  - Minor design improvements
+  
+#### Removed
+  - Expendable dependencies to improve performance
+
 ## 1.5.0 - 2017-12-18
 #### Added
   - Major stability improvements and better error handling

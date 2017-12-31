@@ -1,7 +1,7 @@
 # ACM Scoreboard
 >developed for codeforces.com
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Release Version](https://img.shields.io/badge/version-1.5.1-blue.svg)](https://github.com/ThunderStruct/ACM-Scoreboard/releases) [![License](https://img.shields.io/badge/license-CC%20BY%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by/4.0/)
 
 ## Usage
 
@@ -214,19 +214,15 @@ Title attributes are assigned to the contest table's cells for convenience
 
   - [x] Show a confirmation alert on page-unloading attempts while a contest is running (added in 1.1.1)
 
-  - [x] Display scores data in the console when blind-mode is on
+  - [x] Display scores data in the console when blind-mode is on (added in 1.4.0)
 
-  - [x] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color"
+  - [x] Auto retrieve the problems' names using the given problem IDs and replace the "Problem name" field with "Problem color" (added in 1.4.0)
   
 
   #### Contribution Guide
 
   Feel free to make a pull request if you find any room for enhancements or fixing bugs. The following brief file descriptions should be helpful! Please make sure to read the repo's [CONTRIBUTING](https://github.com/ThunderStruct/ACM-Scoreboard/blob/master/CONTRIBUTING.md) guide before making any changes
-
-  - index.js: some defaults and general initializers
-  - contest.js: all the scoreboard/during-contest scripts
-  - tools.js: the floating tools scripts
-  - setup.js: all the setup screen scripts
+  
 
 ## License
 ![CC](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
