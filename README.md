@@ -22,7 +22,7 @@ _Note: Python is required for the following steps_
 3. `python -m SimpleHTTPServer` for Python 2.x. Alternatively, use `python -m http.server` for Python 3.x
 4. The scoreboard is now accessible through port 8000 (`localhost:8000`)
 
-This platform requires a CORS-enabled server. Localhost server do not normally have cross-origin resource sharing on, in that case one of the following browser plugins can be used:
+This platform requires a CORS-enabled (or HTTP) server. Localhost servers do not normally have cross-origin resource sharing on, in that case one of the following browser plugins can be used:
 
   - Chrome: [Allow-Control-Allow-Origin: *](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en)
   - Firefox: [CORS Everywhere](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
