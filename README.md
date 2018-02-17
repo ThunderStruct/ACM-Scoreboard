@@ -197,7 +197,7 @@ Title attributes are assigned to the contest table's cells for convenience
 ## Credits
 - This scoreboard is solely created by Mohamed Shahawy (ThunderStruct)
 - Hubspot's [PACE](github.hubspot.com/pace/docs/welcome/) loading screen is used
-- A modified version of [jQuery-SimpleColorPicker](https://github.com/tkrotoff/jquery-simplecolorpicker) (available (here)[https://github.com/ThunderStruct/jquery-simplecolorpicker])
+- A modified version of [jQuery-SimpleColorPicker](https://github.com/tkrotoff/jquery-simplecolorpicker) (available [here](https://github.com/ThunderStruct/jquery-simplecolorpicker))
 - Matthew Crumley's SO [post](https://stackoverflow.com/a/294421/3551916) on LZW string compression
 
 **Happy ACMing!**
